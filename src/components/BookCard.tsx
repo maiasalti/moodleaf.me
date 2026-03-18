@@ -41,6 +41,13 @@ export default function BookCard({ book, index, saved, onToggleSave }: BookCardP
             className="h-full w-full object-cover"
             loading="lazy"
             onError={() => setImgError(true)}
+            onLoad={(e) => {
+              const img = e.currentTarget;
+              // Google Books "image not available" placeholders are tiny
+              if (img.naturalWidth < 50 || img.naturalHeight < 50) {
+                setImgError(true);
+              }
+            }}
           />
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-green-100 to-stone-200 px-6">
