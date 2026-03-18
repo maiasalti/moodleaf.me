@@ -23,6 +23,7 @@ function getTopTraits(book: BookWithScore, count: number = 3) {
 
 export default function BookCard({ book, index, saved, onToggleSave }: BookCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const topTraits = getTopTraits(book);
   const description = book.description || "No description available.";
   const isLong = description.length > 150;
@@ -33,17 +34,21 @@ export default function BookCard({ book, index, saved, onToggleSave }: BookCardP
       style={{ animationDelay: `${index * 80}ms` }}
     >
       <div className="relative aspect-[2/3] w-full overflow-hidden bg-stone-100">
-        {book.cover_image_url ? (
+        {book.cover_image_url && !imgError ? (
           <img
             src={book.cover_image_url}
             alt={`Cover of ${book.title}`}
             className="h-full w-full object-cover"
             loading="lazy"
+            onError={() => setImgError(true)}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-green-50 to-stone-100">
-            <span className="px-4 text-center font-serif text-lg text-green-900/40">
+          <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-green-100 to-stone-200 px-6">
+            <span className="text-center font-serif text-xl font-semibold leading-tight text-green-900/70">
               {book.title}
+            </span>
+            <span className="text-center text-sm text-green-900/40">
+              {book.author}
             </span>
           </div>
         )}
