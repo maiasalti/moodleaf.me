@@ -72,7 +72,7 @@ export const GENRES = [
   "Sci-Fi",
   "Mystery/Thriller",
   "Historical Fiction",
-  "YA",
+  "Young Adult",
   "Horror/Gothic",
   "Nonfiction/Memoir",
 ] as const;
@@ -142,7 +142,7 @@ const GENRE_KEYWORDS: Record<string, string[]> = {
   "Mystery/Thriller": ["mystery", "thriller", "suspense", "detective", "crime"],
   "Historical Fiction": ["historical fiction", "history", "war fiction"],
   "Horror/Gothic": ["horror", "gothic", "ghost", "occult", "supernatural"],
-  "YA": ["young adult", "juvenile", "teen", "children"],
+  "Young Adult": ["young adult", "juvenile", "teen", "children"],
   "Nonfiction/Memoir": ["biography", "autobiography", "memoir", "self-help", "nonfiction", "true crime", "psychology", "science", "business"],
   "Literary Fiction": ["literary", "fiction / literary", "literary fiction"],
   "Contemporary Fiction": ["fiction / general", "domestic fiction", "humorous fiction"],

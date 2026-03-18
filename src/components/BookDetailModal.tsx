@@ -11,6 +11,10 @@ interface BookDetailModalProps {
   onClose: () => void;
 }
 
+function toPercent(value: number) {
+  return ((value - 1) / 9) * 100;
+}
+
 function TraitBar({ label, bookValue, userValue }: { label: string; bookValue: number; userValue: number }) {
   const diff = Math.abs(bookValue - userValue);
   const color = diff <= 1.5 ? "bg-green-700" : diff <= 3 ? "bg-amber-500" : "bg-stone-400";
@@ -21,11 +25,11 @@ function TraitBar({ label, bookValue, userValue }: { label: string; bookValue: n
       <div className="relative h-2 flex-1 rounded-full bg-stone-200">
         <div
           className={`absolute top-0 left-0 h-full rounded-full ${color} transition-all duration-300`}
-          style={{ width: `${(bookValue / 10) * 100}%` }}
+          style={{ width: `${toPercent(bookValue)}%` }}
         />
         <div
-          className="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-white bg-green-900 shadow-sm"
-          style={{ left: `${(userValue / 10) * 100}%` }}
+          className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-green-900 shadow-sm"
+          style={{ left: `${toPercent(userValue)}%` }}
           title={`Your preference: ${userValue}`}
         />
       </div>
