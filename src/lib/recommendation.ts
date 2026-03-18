@@ -1,5 +1,5 @@
 import { Book, BookWithScore, SliderValues, TraitKey } from "./types";
-import { TRAIT_KEYS } from "./constants";
+import { TRAIT_KEYS, categorizeBook } from "./constants";
 
 const LOCK_TOLERANCE = 1.5; // locked dimensions must be within ±1.5
 
@@ -39,8 +39,8 @@ export function rankBooks(
   const eligible = books.filter((book) => {
     if (!passesLockFilter(book, userValues, lockedDimensions)) return false;
     if (selectedGenres && selectedGenres.size > 0) {
-      const bookGenres = book.categories ?? [];
-      if (!bookGenres.some((g) => selectedGenres.has(g))) return false;
+      const bookGenre = categorizeBook(book.categories);
+      if (!bookGenre || !selectedGenres.has(bookGenre)) return false;
     }
     return true;
   });

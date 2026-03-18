@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Book, SliderValues, TraitKey, BookWithScore } from "@/lib/types";
-import { DEFAULT_SLIDER_VALUES } from "@/lib/constants";
+import { DEFAULT_SLIDER_VALUES, GENRES, categorizeBook } from "@/lib/constants";
 import { rankBooks } from "@/lib/recommendation";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
@@ -24,7 +24,6 @@ export default function Home() {
     new Set()
   );
   const [selectedGenres, setSelectedGenres] = useState<Set<string>>(new Set());
-  const [allGenres, setAllGenres] = useState<string[]>([]);
   const [savedBookIds, setSavedBookIds] = useState<Set<string>>(new Set());
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -42,12 +41,7 @@ export default function Home() {
         setLoading(false);
         return;
       }
-      const books = data as Book[];
-      setAllBooks(books);
-      const genres = Array.from(
-        new Set(books.flatMap((b) => b.categories ?? []))
-      ).sort();
-      setAllGenres(genres);
+      setAllBooks(data as Book[]);
       setLoading(false);
     }
     fetchBooks();
@@ -117,7 +111,7 @@ export default function Home() {
       <Hero />
       <div className="mx-auto w-full max-w-2xl px-6 pb-4">
         <GenreFilter
-          genres={allGenres}
+          genres={[...GENRES]}
           selected={selectedGenres}
           onChange={setSelectedGenres}
         />

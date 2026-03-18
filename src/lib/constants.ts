@@ -63,3 +63,40 @@ export const DEFAULT_SLIDER_VALUES: SliderValues = {
 };
 
 export const TRAIT_KEYS = SLIDER_DIMENSIONS.map((d) => d.key);
+
+export const GENRES = [
+  "Literary Fiction",
+  "Contemporary Fiction",
+  "Fantasy",
+  "Romance",
+  "Sci-Fi",
+  "Mystery/Thriller",
+  "Historical Fiction",
+  "YA",
+  "Horror/Gothic",
+  "Nonfiction/Memoir",
+] as const;
+
+// Map messy Google Books categories to our clean genres
+const GENRE_KEYWORDS: Record<string, string[]> = {
+  "Fantasy": ["fantasy", "magic", "wizards", "dragons", "paranormal"],
+  "Romance": ["romance", "love stories", "love", "courtship"],
+  "Sci-Fi": ["science fiction", "sci-fi", "dystopia", "space", "futuristic"],
+  "Mystery/Thriller": ["mystery", "thriller", "suspense", "detective", "crime"],
+  "Historical Fiction": ["historical fiction", "history", "war fiction"],
+  "Horror/Gothic": ["horror", "gothic", "ghost", "occult", "supernatural"],
+  "YA": ["young adult", "juvenile", "teen", "children"],
+  "Nonfiction/Memoir": ["biography", "autobiography", "memoir", "self-help", "nonfiction", "true crime", "psychology", "science", "business"],
+  "Literary Fiction": ["literary", "fiction / literary", "literary fiction"],
+  "Contemporary Fiction": ["fiction / general", "domestic fiction", "humorous fiction"],
+};
+
+export function categorizeBook(categories: string[] | null): string | null {
+  if (!categories || categories.length === 0) return null;
+  const joined = categories.join(" ").toLowerCase();
+  for (const [genre, keywords] of Object.entries(GENRE_KEYWORDS)) {
+    if (keywords.some((kw) => joined.includes(kw))) return genre;
+  }
+  if (joined.includes("fiction")) return "Literary Fiction";
+  return null;
+}
