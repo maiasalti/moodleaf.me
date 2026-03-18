@@ -1,41 +1,55 @@
 import { Book, BookWithScore, SliderValues, TraitKey } from "./types";
 import { TRAIT_KEYS } from "./constants";
 
+const LOCK_TOLERANCE = 1.5; // locked dimensions must be within ±1.5
+
+function passesLockFilter(
+  book: Book,
+  userValues: SliderValues,
+  lockedDimensions?: Set<TraitKey>
+): boolean {
+  if (!lockedDimensions || lockedDimensions.size === 0) return true;
+  for (const key of lockedDimensions) {
+    if (Math.abs(userValues[key] - book[key]) > LOCK_TOLERANCE) return false;
+  }
+  return true;
+}
+
 function euclideanDistance(
   userValues: SliderValues,
-  book: Book,
-  lockedDimensions?: Set<TraitKey>
+  book: Book
 ): number {
   let sum = 0;
   for (const key of TRAIT_KEYS) {
     const diff = userValues[key] - book[key];
-    const weight = lockedDimensions?.has(key) ? 3 : 1;
-    sum += weight * diff * diff;
+    sum += diff * diff;
   }
   return Math.sqrt(sum);
 }
 
-const MAX_DISTANCE_PER_DIM = 9; // max diff per dimension (1 to 10)
+const MAX_DISTANCE = Math.sqrt(TRAIT_KEYS.length * 9 * 9);
 
 export function rankBooks(
   books: Book[],
   userValues: SliderValues,
   lockedDimensions?: Set<TraitKey>,
+  selectedGenres?: Set<string>,
   limit: number = 10
 ): BookWithScore[] {
-  const totalWeight = TRAIT_KEYS.reduce(
-    (acc, key) => acc + (lockedDimensions?.has(key) ? 3 : 1),
-    0
-  );
-  const maxDistance = Math.sqrt(
-    totalWeight * MAX_DISTANCE_PER_DIM * MAX_DISTANCE_PER_DIM
-  );
+  const eligible = books.filter((book) => {
+    if (!passesLockFilter(book, userValues, lockedDimensions)) return false;
+    if (selectedGenres && selectedGenres.size > 0) {
+      const bookGenres = book.categories ?? [];
+      if (!bookGenres.some((g) => selectedGenres.has(g))) return false;
+    }
+    return true;
+  });
 
-  return books
+  return eligible
     .map((book) => {
-      const distance = euclideanDistance(userValues, book, lockedDimensions);
+      const distance = euclideanDistance(userValues, book);
       const matchPercentage = Math.round(
-        Math.max(0, (1 - distance / maxDistance) * 100)
+        Math.max(0, (1 - distance / MAX_DISTANCE) * 100)
       );
       return { ...book, matchPercentage };
     })

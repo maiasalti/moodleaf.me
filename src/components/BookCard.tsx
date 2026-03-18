@@ -8,6 +8,8 @@ import MatchBadge from "./MatchBadge";
 interface BookCardProps {
   book: BookWithScore;
   index: number;
+  saved?: boolean;
+  onToggleSave?: (bookId: string) => void;
 }
 
 function getTopTraits(book: BookWithScore, count: number = 3) {
@@ -19,7 +21,7 @@ function getTopTraits(book: BookWithScore, count: number = 3) {
     .slice(0, count);
 }
 
-export default function BookCard({ book, index }: BookCardProps) {
+export default function BookCard({ book, index, saved, onToggleSave }: BookCardProps) {
   const [expanded, setExpanded] = useState(false);
   const topTraits = getTopTraits(book);
   const description = book.description || "No description available.";
@@ -44,6 +46,23 @@ export default function BookCard({ book, index }: BookCardProps) {
               {book.title}
             </span>
           </div>
+        )}
+        {onToggleSave && (
+          <button
+            onClick={() => onToggleSave(book.id)}
+            className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition-all hover:bg-white hover:shadow-md"
+            title={saved ? "Remove from saved" : "Save book"}
+          >
+            {saved ? (
+              <svg className="h-4 w-4 text-green-800" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M5 2h14a1 1 0 011 1v19.143a.5.5 0 01-.766.424L12 18.03l-7.234 4.536A.5.5 0 014 22.143V3a1 1 0 011-1z" />
+              </svg>
+            ) : (
+              <svg className="h-4 w-4 text-stone-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 2h14a1 1 0 011 1v19.143a.5.5 0 01-.766.424L12 18.03l-7.234 4.536A.5.5 0 014 22.143V3a1 1 0 011-1z" />
+              </svg>
+            )}
+          </button>
         )}
       </div>
 

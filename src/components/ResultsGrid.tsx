@@ -6,9 +6,11 @@ import BookCard from "./BookCard";
 interface ResultsGridProps {
   books: BookWithScore[];
   loading: boolean;
+  savedBookIds?: Set<string>;
+  onToggleSave?: (bookId: string) => void;
 }
 
-export default function ResultsGrid({ books, loading }: ResultsGridProps) {
+export default function ResultsGrid({ books, loading, savedBookIds, onToggleSave }: ResultsGridProps) {
   if (loading) {
     return (
       <section className="mx-auto w-full max-w-6xl px-6 py-12">
@@ -32,7 +34,7 @@ export default function ResultsGrid({ books, loading }: ResultsGridProps) {
   if (books.length === 0) {
     return (
       <section className="mx-auto w-full max-w-6xl px-6 py-12 text-center">
-        <p className="text-stone-400">No books loaded yet.</p>
+        <p className="text-stone-400">No books match your current filters. Try adjusting your sliders or unlocking a dimension.</p>
       </section>
     );
   }
@@ -44,7 +46,13 @@ export default function ResultsGrid({ books, loading }: ResultsGridProps) {
       </h2>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {books.map((book, i) => (
-          <BookCard key={book.id} book={book} index={i} />
+          <BookCard
+            key={book.id}
+            book={book}
+            index={i}
+            saved={savedBookIds?.has(book.id)}
+            onToggleSave={onToggleSave}
+          />
         ))}
       </div>
     </section>
