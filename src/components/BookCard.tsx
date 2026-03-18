@@ -10,28 +10,28 @@ interface BookCardProps {
   index: number;
   saved?: boolean;
   onToggleSave?: (bookId: string) => void;
+  onClick?: () => void;
 }
 
-function getTopTraits(book: BookWithScore, count: number = 3) {
-  return SLIDER_DIMENSIONS.map((dim) => ({
-    ...dim,
-    value: book[dim.key as TraitKey] as number,
-  }))
-    .sort((a, b) => Math.abs(b.value - 5.5) - Math.abs(a.value - 5.5))
-    .slice(0, count);
+function getWhyMatch(book: BookWithScore): string | null {
+  if (!book.traitMatches) return null;
+  const sorted = [...book.traitMatches].sort((a, b) => a.difference - b.difference);
+  const strong = sorted.filter((t) => t.difference <= 1.5);
+  if (strong.length === 0) return null;
+  const top = strong.slice(0, 2).map((t) => t.label.toLowerCase());
+  if (top.length === 2) return `Strong match on ${top[0]} and ${top[1]}`;
+  return `Strong match on ${top[0]}`;
 }
 
-export default function BookCard({ book, index, saved, onToggleSave }: BookCardProps) {
-  const [expanded, setExpanded] = useState(false);
+export default function BookCard({ book, index, saved, onToggleSave, onClick }: BookCardProps) {
   const [imgError, setImgError] = useState(false);
-  const topTraits = getTopTraits(book);
-  const description = book.description || "No description available.";
-  const isLong = description.length > 150;
+  const whyMatch = getWhyMatch(book);
 
   return (
     <div
-      className="flex flex-col overflow-hidden rounded-2xl bg-white/80 shadow-sm backdrop-blur-sm transition-all duration-300 hover:shadow-lg"
+      className="flex cursor-pointer flex-col overflow-hidden rounded-2xl bg-white/80 shadow-sm backdrop-blur-sm transition-all duration-300 hover:shadow-lg"
       style={{ animationDelay: `${index * 80}ms` }}
+      onClick={onClick}
     >
       <div className="relative aspect-[2/3] w-full overflow-hidden bg-stone-100">
         {book.cover_image_url && !imgError ? (
@@ -43,7 +43,6 @@ export default function BookCard({ book, index, saved, onToggleSave }: BookCardP
             onError={() => setImgError(true)}
             onLoad={(e) => {
               const img = e.currentTarget;
-              // Google Books "image not available" placeholders are tiny
               if (img.naturalWidth < 50 || img.naturalHeight < 50) {
                 setImgError(true);
               }
@@ -61,7 +60,7 @@ export default function BookCard({ book, index, saved, onToggleSave }: BookCardP
         )}
         {onToggleSave && (
           <button
-            onClick={() => onToggleSave(book.id)}
+            onClick={(e) => { e.stopPropagation(); onToggleSave(book.id); }}
             className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition-all hover:bg-white hover:shadow-md"
             title={saved ? "Remove from saved" : "Save book"}
           >
@@ -86,32 +85,28 @@ export default function BookCard({ book, index, saved, onToggleSave }: BookCardP
         </h3>
         <p className="text-sm text-stone-500">{book.author}</p>
 
-        <p className="mt-1 text-sm leading-relaxed text-stone-600">
-          {expanded || !isLong
-            ? description
-            : description.slice(0, 150) + "..."}
-          {isLong && (
-            <button
-              onClick={() => setExpanded(!expanded)}
-              className="ml-1 font-medium text-green-700 hover:text-green-900"
-            >
-              {expanded ? "less" : "more"}
-            </button>
-          )}
-        </p>
+        {whyMatch && (
+          <p className="text-xs font-medium text-green-700">{whyMatch}</p>
+        )}
 
         <div className="mt-auto flex flex-wrap gap-1.5 pt-3">
-          {topTraits.map((trait) => (
-            <span
-              key={trait.key}
-              className="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-stone-500"
-            >
-              {trait.label}{" "}
-              <span className="font-medium text-stone-700">
-                {trait.value}/10
+          {SLIDER_DIMENSIONS.map((dim) => ({
+            ...dim,
+            value: book[dim.key as TraitKey] as number,
+          }))
+            .sort((a, b) => Math.abs(b.value - 5.5) - Math.abs(a.value - 5.5))
+            .slice(0, 3)
+            .map((trait) => (
+              <span
+                key={trait.key}
+                className="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-stone-500"
+              >
+                {trait.label}{" "}
+                <span className="font-medium text-stone-700">
+                  {trait.value}/10
+                </span>
               </span>
-            </span>
-          ))}
+            ))}
         </div>
       </div>
     </div>

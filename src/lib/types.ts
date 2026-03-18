@@ -46,6 +46,21 @@ export interface SliderValues {
   world_building: number;
 }
 
+export interface TraitMatch {
+  key: TraitKey;
+  label: string;
+  bookValue: number;
+  userValue: number;
+  difference: number;
+}
+
 export interface BookWithScore extends Book {
   matchPercentage: number;
+  traitMatches: TraitMatch[];
+}
+
+export interface MoodPreset {
+  name: string;
+  icon: string;
+  values: SliderValues;
 }

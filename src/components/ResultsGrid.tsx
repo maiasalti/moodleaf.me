@@ -6,11 +6,22 @@ import BookCard from "./BookCard";
 interface ResultsGridProps {
   books: BookWithScore[];
   loading: boolean;
+  visibleCount: number;
   savedBookIds?: Set<string>;
   onToggleSave?: (bookId: string) => void;
+  onShowMore?: () => void;
+  onBookClick?: (book: BookWithScore) => void;
 }
 
-export default function ResultsGrid({ books, loading, savedBookIds, onToggleSave }: ResultsGridProps) {
+export default function ResultsGrid({
+  books,
+  loading,
+  visibleCount,
+  savedBookIds,
+  onToggleSave,
+  onShowMore,
+  onBookClick,
+}: ResultsGridProps) {
   if (loading) {
     return (
       <section className="mx-auto w-full max-w-6xl px-6 py-12">
@@ -39,22 +50,36 @@ export default function ResultsGrid({ books, loading, savedBookIds, onToggleSave
     );
   }
 
+  const visible = books.slice(0, visibleCount);
+  const hasMore = books.length > visibleCount;
+
   return (
     <section className="mx-auto w-full max-w-6xl px-6 py-12">
       <h2 className="mb-8 text-center font-serif text-2xl font-semibold text-green-900">
         Your recommendations
       </h2>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {books.map((book, i) => (
+        {visible.map((book, i) => (
           <BookCard
             key={book.id}
             book={book}
             index={i}
             saved={savedBookIds?.has(book.id)}
             onToggleSave={onToggleSave}
+            onClick={() => onBookClick?.(book)}
           />
         ))}
       </div>
+      {hasMore && onShowMore && (
+        <div className="mt-10 text-center">
+          <button
+            onClick={onShowMore}
+            className="rounded-full border border-stone-300 bg-white/70 px-8 py-3 text-sm font-medium text-stone-600 backdrop-blur-sm transition-all hover:border-green-700 hover:bg-green-50 hover:text-green-800"
+          >
+            Show more ({books.length - visibleCount} remaining)
+          </button>
+        </div>
+      )}
     </section>
   );
 }

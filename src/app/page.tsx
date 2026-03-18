@@ -12,7 +12,12 @@ import SliderPanel from "@/components/SliderPanel";
 import GenreFilter from "@/components/GenreFilter";
 import ResultsGrid from "@/components/ResultsGrid";
 import AuthModal from "@/components/AuthModal";
+import BookDetailModal from "@/components/BookDetailModal";
+import SearchBar from "@/components/SearchBar";
+import MoodPresets from "@/components/MoodPresets";
 import Footer from "@/components/Footer";
+
+const RESULTS_PER_PAGE = 10;
 
 export default function Home() {
   const { user } = useAuth();
@@ -27,6 +32,9 @@ export default function Home() {
   const [savedBookIds, setSavedBookIds] = useState<Set<string>>(new Set());
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(RESULTS_PER_PAGE);
+  const [selectedBook, setSelectedBook] = useState<BookWithScore | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function fetchBooks() {
@@ -56,17 +64,29 @@ export default function Home() {
   }, [user]);
 
   const updateResults = useCallback(
-    (values: SliderValues, locked: Set<TraitKey>, genres: Set<string>, books: Book[]) => {
+    (values: SliderValues, locked: Set<TraitKey>, genres: Set<string>, books: Book[], query: string) => {
       if (books.length === 0) return;
-      const ranked = rankBooks(books, values, locked, genres, 10);
+
+      let filtered = books;
+      if (query.trim()) {
+        const q = query.trim().toLowerCase();
+        filtered = books.filter(
+          (b) =>
+            b.title.toLowerCase().includes(q) ||
+            b.author.toLowerCase().includes(q)
+        );
+      }
+
+      const ranked = rankBooks(filtered, values, locked, genres);
       setResults(ranked);
     },
     []
   );
 
   useEffect(() => {
-    updateResults(sliderValues, lockedDimensions, selectedGenres, allBooks);
-  }, [sliderValues, lockedDimensions, selectedGenres, allBooks, updateResults]);
+    updateResults(sliderValues, lockedDimensions, selectedGenres, allBooks, searchQuery);
+    setVisibleCount(RESULTS_PER_PAGE);
+  }, [sliderValues, lockedDimensions, selectedGenres, allBooks, searchQuery, updateResults]);
 
   const handleSliderChange = (key: TraitKey, value: number) => {
     setSliderValues((prev) => ({ ...prev, [key]: value }));
@@ -85,6 +105,12 @@ export default function Home() {
     setSliderValues(DEFAULT_SLIDER_VALUES);
     setLockedDimensions(new Set());
     setSelectedGenres(new Set());
+    setSearchQuery("");
+  };
+
+  const handlePresetSelect = (values: SliderValues) => {
+    setSliderValues(values);
+    setLockedDimensions(new Set());
   };
 
   const handleToggleSave = async (bookId: string) => {
@@ -106,15 +132,21 @@ export default function Home() {
     }
   };
 
+  const handleShowMore = () => {
+    setVisibleCount((prev) => prev + RESULTS_PER_PAGE);
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Hero />
-      <div className="mx-auto w-full max-w-2xl px-6 pb-4">
+      <div className="mx-auto w-full max-w-2xl space-y-4 px-6 pb-4">
+        <SearchBar onSearch={setSearchQuery} />
         <GenreFilter
           genres={[...GENRES]}
           selected={selectedGenres}
           onChange={setSelectedGenres}
         />
+        <MoodPresets onSelect={handlePresetSelect} />
       </div>
       <SliderPanel
         values={sliderValues}
@@ -126,11 +158,22 @@ export default function Home() {
       <ResultsGrid
         books={results}
         loading={loading}
+        visibleCount={visibleCount}
         savedBookIds={savedBookIds}
         onToggleSave={handleToggleSave}
+        onShowMore={handleShowMore}
+        onBookClick={setSelectedBook}
       />
       <Footer />
       {showAuthPrompt && <AuthModal onClose={() => setShowAuthPrompt(false)} />}
+      {selectedBook && (
+        <BookDetailModal
+          book={selectedBook}
+          saved={savedBookIds.has(selectedBook.id)}
+          onToggleSave={handleToggleSave}
+          onClose={() => setSelectedBook(null)}
+        />
+      )}
     </div>
   );
 }
