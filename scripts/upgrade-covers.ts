@@ -3,6 +3,7 @@ import path from "path";
 dotenv.config({ path: path.resolve(__dirname, "../.env.local") });
 import { createClient } from "@supabase/supabase-js";
 import { execSync } from "child_process";
+import fs from "fs";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,29 +14,38 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Download image to temp file and check pixel width
-async function getImageWidth(url: string): Promise<number> {
+// Download image and check pixel width via file size as proxy
+// Open Library -L images that are real covers are typically >30KB
+// Tiny placeholders or 1x1 images are <5KB
+async function isGoodCover(url: string): Promise<boolean> {
   try {
     const tmpFile = `/tmp/cover_check_${Date.now()}.jpg`;
     execSync(`curl -sL "${url}" -o "${tmpFile}" --max-time 10`, { stdio: "pipe" });
-    const fileInfo = execSync(`file "${tmpFile}"`, { encoding: "utf-8" });
-    execSync(`rm -f "${tmpFile}"`, { stdio: "pipe" });
+    const stats = fs.statSync(tmpFile);
+    const size = stats.size;
 
-    // Parse width from file output like "JPEG image data, ..., 115x187, ..."
-    const match = fileInfo.match(/(\d+)x(\d+)/);
-    if (match) return parseInt(match[1]);
-    return 0;
+    // Also try to parse dimensions from file command
+    let width = 0;
+    try {
+      const fileInfo = execSync(`file "${tmpFile}"`, { encoding: "utf-8" });
+      const match = fileInfo.match(/(\d+)\s*x\s*(\d+)/);
+      if (match) width = parseInt(match[1]);
+    } catch {}
+
+    fs.unlinkSync(tmpFile);
+
+    // Accept if dimensions are good OR file is large enough to be a real cover
+    return width >= 200 || size >= 30000;
   } catch {
-    return 0;
+    return false;
   }
 }
 
-// Try Open Library by ISBN (often higher quality than title search)
+// Try Open Library by ISBN (often highest quality)
 async function tryOpenLibraryISBN(isbn: string): Promise<string | null> {
   if (!isbn) return null;
   const url = `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`;
-  const width = await getImageWidth(url);
-  return width >= 300 ? url : null;
+  return (await isGoodCover(url)) ? url : null;
 }
 
 // Try Open Library by title/author search
@@ -46,12 +56,10 @@ async function tryOpenLibrarySearch(title: string, author: string): Promise<stri
     if (!response.ok) return null;
     const data = await response.json();
 
-    // Try multiple results — sometimes the first has a bad cover
     for (const doc of data.docs?.slice(0, 3) || []) {
       if (!doc.cover_i) continue;
       const url = `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
-      const width = await getImageWidth(url);
-      if (width >= 300) return url;
+      if (await isGoodCover(url)) return url;
     }
     return null;
   } catch {
@@ -71,25 +79,20 @@ async function tryGoogleBooks(title: string, author: string): Promise<string | n
     const imageLinks = data.items?.[0]?.volumeInfo?.imageLinks;
     if (!imageLinks) return null;
 
-    // Try extraLarge > large > medium > thumbnail, all with zoom tweaks
-    for (const key of ["extraLarge", "large", "medium", "thumbnail"]) {
-      if (!imageLinks[key]) continue;
-      let url = imageLinks[key].replace(/^http:/, "https:");
+    // Try largest zoom first
+    const baseUrl = (imageLinks.thumbnail || imageLinks.smallThumbnail || "")
+      .replace(/^http:/, "https:");
+    if (!baseUrl) return null;
 
-      // Try zoom=3 first (largest)
-      for (const zoom of ["3", "2", "1"]) {
-        const zoomedUrl = url.replace(/zoom=\d/, `zoom=${zoom}`);
-        const width = await getImageWidth(zoomedUrl);
-        if (width >= 300) return zoomedUrl;
-      }
+    for (const zoom of ["3", "2"]) {
+      const url = baseUrl.replace(/zoom=\d/, `zoom=${zoom}`);
+      if (await isGoodCover(url)) return url;
     }
     return null;
   } catch {
     return null;
   }
 }
-
-const MIN_WIDTH = 300; // Minimum acceptable pixel width
 
 async function main() {
   const { data: books } = await supabase
@@ -98,29 +101,25 @@ async function main() {
 
   if (!books) return;
 
-  console.log(`Checking ${books.length} books for high-res covers (>=${MIN_WIDTH}px wide)...\n`);
+  console.log(`Checking ${books.length} books for cover quality...\n`);
 
   let upgraded = 0;
   let alreadyGood = 0;
+  let restored = 0;
   let noGoodCover: string[] = [];
 
   for (let i = 0; i < books.length; i++) {
     const book = books[i];
     const progress = `[${i + 1}/${books.length}]`;
 
-    // Check current cover quality
-    if (book.cover_image_url) {
-      const currentWidth = await getImageWidth(book.cover_image_url);
-      if (currentWidth >= MIN_WIDTH) {
-        alreadyGood++;
-        continue;
-      }
-      console.log(`${progress} Low-res (${currentWidth}px): "${book.title}" — searching for better...`);
-    } else {
-      console.log(`${progress} No cover: "${book.title}" — searching...`);
+    // Check if current cover is good
+    if (book.cover_image_url && (await isGoodCover(book.cover_image_url))) {
+      alreadyGood++;
+      continue;
     }
 
-    // Try sources in order of quality
+    console.log(`${progress} Needs upgrade: "${book.title}"`);
+
     let newUrl: string | null = null;
 
     // 1. Open Library by ISBN
@@ -133,36 +132,31 @@ async function main() {
     if (!newUrl) {
       newUrl = await tryOpenLibrarySearch(book.title, book.author);
       if (newUrl) console.log(`  Found via Open Library search`);
+      await sleep(300);
     }
 
     // 3. Google Books
     if (!newUrl) {
       newUrl = await tryGoogleBooks(book.title, book.author);
       if (newUrl) console.log(`  Found via Google Books`);
+      await sleep(200);
     }
 
     if (newUrl) {
       await supabase.from("books").update({ cover_image_url: newUrl }).eq("id", book.id);
       upgraded++;
-      console.log(`  Upgraded!`);
     } else {
-      // Clear the bad cover so the frontend shows the nice gradient fallback
-      if (book.cover_image_url) {
-        await supabase.from("books").update({ cover_image_url: null }).eq("id", book.id);
-        console.log(`  No good cover found — using fallback`);
-      }
       noGoodCover.push(book.title);
+      console.log(`  No good cover found`);
     }
-
-    await sleep(300);
   }
 
   console.log(`\n--- Results ---`);
   console.log(`Already good: ${alreadyGood}`);
   console.log(`Upgraded: ${upgraded}`);
-  console.log(`Using fallback: ${noGoodCover.length}`);
+  console.log(`No good cover: ${noGoodCover.length}`);
   if (noGoodCover.length > 0) {
-    console.log(`\nBooks using gradient fallback:`);
+    console.log(`\nBooks without good covers:`);
     for (const t of noGoodCover) console.log(`  - ${t}`);
   }
 }
