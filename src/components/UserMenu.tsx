@@ -29,7 +29,7 @@ export default function UserMenu({ onSignInClick }: UserMenuProps) {
     return (
       <button
         onClick={onSignInClick}
-        className="rounded-lg border border-stone-200 bg-white/60 px-4 py-2 text-sm text-stone-600 backdrop-blur-sm transition-colors hover:border-stone-300 hover:bg-white/80"
+        className="rounded-lg border border-stone-200 bg-[var(--color-surface)]/60 px-4 py-2 text-sm text-stone-600 backdrop-blur-sm transition-colors hover:border-stone-300 hover:bg-[var(--color-surface)]/80"
       >
         Sign in
       </button>
@@ -50,7 +50,7 @@ export default function UserMenu({ onSignInClick }: UserMenuProps) {
       </button>
 
       {open && (
-        <div className="absolute right-0 z-20 mt-2 w-48 rounded-xl border border-stone-200 bg-white/95 p-2 shadow-lg backdrop-blur-md">
+        <div className="absolute right-0 z-20 mt-2 w-48 rounded-xl border border-stone-200 bg-[var(--color-surface-elevated)] p-2 shadow-lg backdrop-blur-md">
           <p className="px-3 py-1.5 text-xs text-stone-400">
             Signed in as <strong className="text-stone-600">{displayName}</strong>
           </p>
@@ -60,6 +60,13 @@ export default function UserMenu({ onSignInClick }: UserMenuProps) {
             className="block w-full rounded-lg px-3 py-1.5 text-left text-sm text-stone-600 transition-colors hover:bg-green-50"
           >
             Saved books
+          </Link>
+          <Link
+            href="/profile"
+            onClick={() => setOpen(false)}
+            className="block w-full rounded-lg px-3 py-1.5 text-left text-sm text-stone-600 transition-colors hover:bg-green-50"
+          >
+            My Profile
           </Link>
           <button
             onClick={() => { signOut(); setOpen(false); }}

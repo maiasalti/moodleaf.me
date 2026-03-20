@@ -64,3 +64,14 @@ export interface MoodPreset {
   icon: string;
   values: SliderValues;
 }
+
+export interface ReadingList {
+  id: string;
+  user_id: string;
+  name: string;
+  created_at: string;
+}
+
+export interface ReadingListWithBooks extends ReadingList {
+  books: Book[];
+}

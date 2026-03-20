@@ -3,6 +3,7 @@
 import { useState } from "react";
 import UserMenu from "./UserMenu";
 import AuthModal from "./AuthModal";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Hero() {
   const [showAuth, setShowAuth] = useState(false);
@@ -11,7 +12,10 @@ export default function Hero() {
     <>
       <header className="flex items-center justify-between px-6 pt-6 md:px-10">
         <div />
-        <UserMenu onSignInClick={() => setShowAuth(true)} />
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <UserMenu onSignInClick={() => setShowAuth(true)} />
+        </div>
       </header>
       <section className="flex flex-col items-center px-6 pt-10 pb-12 text-center md:pt-16 md:pb-16">
         <h1 className="font-serif text-5xl font-bold tracking-tight text-green-900 md:text-7xl">

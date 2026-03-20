@@ -1,14 +1,20 @@
 "use client";
 
-import { BookWithScore, TraitKey } from "@/lib/types";
-import { SLIDER_DIMENSIONS, categorizeBook } from "@/lib/constants";
+import { BookWithScore, SliderValues, ReadingListWithBooks } from "@/lib/types";
+import { SLIDER_DIMENSIONS, categorizeBook, extractTraitValues } from "@/lib/constants";
 import MatchBadge from "./MatchBadge";
+import AddToListDropdown from "./AddToListDropdown";
 
 interface BookDetailModalProps {
   book: BookWithScore;
   saved?: boolean;
   onToggleSave?: (bookId: string) => void;
   onClose: () => void;
+  onMoreLikeThis?: (values: SliderValues) => void;
+  readingLists?: ReadingListWithBooks[];
+  onAddToList?: (listId: string, bookId: string) => void;
+  onRemoveFromList?: (listId: string, bookId: string) => void;
+  onCreateList?: (name: string) => void;
 }
 
 function toPercent(value: number) {
@@ -38,7 +44,17 @@ function TraitBar({ label, bookValue, userValue }: { label: string; bookValue: n
   );
 }
 
-export default function BookDetailModal({ book, saved, onToggleSave, onClose }: BookDetailModalProps) {
+export default function BookDetailModal({
+  book,
+  saved,
+  onToggleSave,
+  onClose,
+  onMoreLikeThis,
+  readingLists,
+  onAddToList,
+  onRemoveFromList,
+  onCreateList,
+}: BookDetailModalProps) {
   const genre = categorizeBook(book.categories);
 
   const handleShare = async () => {
@@ -61,6 +77,13 @@ export default function BookDetailModal({ book, saved, onToggleSave, onClose }: 
     }
   };
 
+  const handleMoreLikeThis = () => {
+    if (!onMoreLikeThis) return;
+    const traits = extractTraitValues(book);
+    onMoreLikeThis(traits);
+    onClose();
+  };
+
   // Sort traits: best matches first
   const sortedTraits = [...(book.traitMatches || [])].sort((a, b) => a.difference - b.difference);
 
@@ -73,7 +96,7 @@ export default function BookDetailModal({ book, saved, onToggleSave, onClose }: 
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-stone-500 shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-stone-700"
+          className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-surface)]/80 text-stone-500 shadow-sm backdrop-blur-sm transition-colors hover:bg-[var(--color-surface)] hover:text-stone-700"
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -123,7 +146,7 @@ export default function BookDetailModal({ book, saved, onToggleSave, onClose }: 
               )}
             </div>
 
-            <div className="flex gap-2 pt-1">
+            <div className="flex flex-wrap gap-2 pt-1">
               {onToggleSave && (
                 <button
                   onClick={() => onToggleSave(book.id)}
@@ -143,6 +166,23 @@ export default function BookDetailModal({ book, saved, onToggleSave, onClose }: 
               >
                 Share
               </button>
+              {onMoreLikeThis && (
+                <button
+                  onClick={handleMoreLikeThis}
+                  className="rounded-full bg-terracotta/10 px-4 py-1.5 text-sm font-medium text-terracotta transition-colors hover:bg-terracotta/20"
+                >
+                  More like this
+                </button>
+              )}
+              {readingLists && onAddToList && onRemoveFromList && onCreateList && (
+                <AddToListDropdown
+                  bookId={book.id}
+                  lists={readingLists}
+                  onAddToList={onAddToList}
+                  onRemoveFromList={onRemoveFromList}
+                  onCreateList={onCreateList}
+                />
+              )}
             </div>
           </div>
         </div>

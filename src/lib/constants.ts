@@ -1,4 +1,4 @@
-import { SliderDimension, SliderValues, MoodPreset } from "./types";
+import { SliderDimension, SliderValues, MoodPreset, Book, TraitKey } from "./types";
 
 export const SLIDER_DIMENSIONS: SliderDimension[] = [
   {
@@ -133,6 +133,38 @@ export const MOOD_PRESETS: MoodPreset[] = [
     },
   },
 ];
+
+export const PAGE_COUNT_RANGES = [
+  { key: "short", label: "Short (< 250)", min: 0, max: 249 },
+  { key: "medium", label: "Medium (250–450)", min: 250, max: 450 },
+  { key: "long", label: "Long (450+)", min: 451, max: Infinity },
+] as const;
+
+export function extractTraitValues(book: Book): SliderValues {
+  const values: Partial<SliderValues> = {};
+  for (const key of TRAIT_KEYS) {
+    values[key as TraitKey] = Math.round(book[key as TraitKey]);
+  }
+  return values as SliderValues;
+}
+
+export function averageTraits(books: Book[]): SliderValues {
+  if (books.length === 0) return { ...DEFAULT_SLIDER_VALUES };
+  const sums: Partial<SliderValues> = {};
+  for (const key of TRAIT_KEYS) {
+    sums[key as TraitKey] = 0;
+  }
+  for (const book of books) {
+    for (const key of TRAIT_KEYS) {
+      sums[key as TraitKey] = (sums[key as TraitKey] || 0) + book[key as TraitKey];
+    }
+  }
+  const result: Partial<SliderValues> = {};
+  for (const key of TRAIT_KEYS) {
+    result[key as TraitKey] = Math.round((sums[key as TraitKey] || 0) / books.length);
+  }
+  return result as SliderValues;
+}
 
 // Map messy Google Books categories to our clean genres
 const GENRE_KEYWORDS: Record<string, string[]> = {

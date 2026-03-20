@@ -36,7 +36,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
         value={query}
         onChange={(e) => handleChange(e.target.value)}
         placeholder="Search by title or author..."
-        className="w-full rounded-xl border border-stone-200 bg-white/80 py-2.5 pl-10 pr-4 text-sm text-stone-700 placeholder-stone-400 outline-none backdrop-blur-sm transition-colors focus:border-green-700 focus:ring-1 focus:ring-green-700"
+        className="w-full rounded-xl border border-stone-200 bg-[var(--color-surface)]/80 py-2.5 pl-10 pr-4 text-sm text-stone-700 placeholder-stone-400 outline-none backdrop-blur-sm transition-colors focus:border-green-700 focus:ring-1 focus:ring-green-700"
       />
       {query && (
         <button
