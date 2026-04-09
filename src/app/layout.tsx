@@ -23,7 +23,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
+      <body className="min-h-screen font-sans antialiased">
+        <ThemeProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProvider>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-6W3W6XHVCW"
           strategy="afterInteractive"
@@ -36,11 +39,6 @@ export default function RootLayout({
             gtag('config', 'G-6W3W6XHVCW');
           `}
         </Script>
-      </head>
-      <body className="min-h-screen font-sans antialiased">
-        <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </ThemeProvider>
       </body>
     </html>
   );
