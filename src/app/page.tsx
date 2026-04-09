@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Book, SliderValues, TraitKey, BookWithScore, ReadingListWithBooks } from "@/lib/types";
+import { Book, SliderValues, TraitKey, BookWithScore, ReadingListWithBooks, CommunityAggregate } from "@/lib/types";
 import { DEFAULT_SLIDER_VALUES, GENRES, categorizeBook, PAGE_COUNT_RANGES, extractTraitValues } from "@/lib/constants";
 import { ONBOARDING_TITLES } from "@/lib/onboarding-books";
 import { rankBooks } from "@/lib/recommendation";
@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 import { getSavedBookIds, saveBook, unsaveBook } from "@/lib/saved-books";
 import { getUserLists, createList, addBookToList, removeBookFromList } from "@/lib/reading-lists";
+import { getReadBookIds, logBookAsRead, unlogBook, getBookCommunityAggregates, blendTraits, getUserRating, upsertRating } from "@/lib/community-ratings";
 import { useAnimatedSliders } from "@/lib/use-animated-sliders";
 import { useHiddenBooks } from "@/lib/use-hidden-books";
 import { useSavedMoods } from "@/lib/use-saved-moods";
@@ -66,6 +67,11 @@ export default function Home() {
   // Reading lists
   const [readingLists, setReadingLists] = useState<ReadingListWithBooks[]>([]);
 
+  // Community ratings
+  const [readBookIds, setReadBookIds] = useState<Set<string>>(new Set());
+  const [communityAggregates, setCommunityAggregates] = useState<Map<string, CommunityAggregate>>(new Map());
+  const [selectedBookRating, setSelectedBookRating] = useState<SliderValues | null>(null);
+
   useEffect(() => {
     async function fetchBooks() {
       if (!supabase) {
@@ -80,7 +86,16 @@ export default function Home() {
         return;
       }
       const books = data as Book[];
-      setAllBooks(books);
+
+      // Fetch community aggregates and blend
+      const aggregates = await getBookCommunityAggregates(books.map((b) => b.id));
+      setCommunityAggregates(aggregates);
+      const blendedBooks = books.map((book) => {
+        const agg = aggregates.get(book.id);
+        return agg ? blendTraits(book, agg.means, agg.count) : book;
+      });
+
+      setAllBooks(blendedBooks);
       setLoading(false);
 
       // Onboarding: check if first visit
@@ -100,9 +115,11 @@ export default function Home() {
     if (user) {
       getSavedBookIds(user.id).then(setSavedBookIds);
       getUserLists(user.id).then(setReadingLists);
+      getReadBookIds(user.id).then(setReadBookIds);
     } else {
       setSavedBookIds(new Set());
       setReadingLists([]);
+      setReadBookIds(new Set());
     }
   }, [user]);
 
@@ -217,6 +234,34 @@ export default function Home() {
     setShowOnboarding(false);
   };
 
+  // Read toggle
+  const handleToggleRead = async (bookId: string) => {
+    if (!user) {
+      setShowAuthPrompt(true);
+      return;
+    }
+    const isRead = readBookIds.has(bookId);
+    if (isRead) {
+      await unlogBook(user.id, bookId);
+      setReadBookIds((prev) => {
+        const next = new Set(prev);
+        next.delete(bookId);
+        return next;
+      });
+      setSelectedBookRating(null);
+    } else {
+      await logBookAsRead(user.id, bookId);
+      setReadBookIds((prev) => new Set(prev).add(bookId));
+    }
+  };
+
+  // Rating submit
+  const handleSubmitRating = async (bookId: string, values: SliderValues) => {
+    if (!user) return;
+    await upsertRating(user.id, bookId, values);
+    setSelectedBookRating(values);
+  };
+
   // Reading lists handlers
   const handleAddToList = async (listId: string, bookId: string) => {
     const success = await addBookToList(listId, bookId);
@@ -314,7 +359,14 @@ export default function Home() {
         onHide={hideBook}
         onToggleShowHidden={() => setShowHidden((prev) => !prev)}
         onShowMore={handleShowMore}
-        onBookClick={setSelectedBook}
+        onBookClick={async (book) => {
+          setSelectedBook(book);
+          setSelectedBookRating(null);
+          if (user && readBookIds.has(book.id)) {
+            const rating = await getUserRating(user.id, book.id);
+            setSelectedBookRating(rating);
+          }
+        }}
       />
       <Footer />
       {showAuthPrompt && <AuthModal onClose={() => setShowAuthPrompt(false)} />}
@@ -322,8 +374,13 @@ export default function Home() {
         <BookDetailModal
           book={selectedBook}
           saved={savedBookIds.has(selectedBook.id)}
+          isRead={readBookIds.has(selectedBook.id)}
+          userRating={selectedBookRating}
+          communityCount={communityAggregates.get(selectedBook.id)?.count ?? 0}
           onToggleSave={handleToggleSave}
-          onClose={() => setSelectedBook(null)}
+          onToggleRead={handleToggleRead}
+          onSubmitRating={handleSubmitRating}
+          onClose={() => { setSelectedBook(null); setSelectedBookRating(null); }}
           onMoreLikeThis={handleMoreLikeThis}
           readingLists={user ? readingLists : undefined}
           onAddToList={user ? handleAddToList : undefined}

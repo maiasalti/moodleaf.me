@@ -64,6 +64,9 @@ export const DEFAULT_SLIDER_VALUES: SliderValues = {
 
 export const TRAIT_KEYS = SLIDER_DIMENSIONS.map((d) => d.key);
 
+// AI baseline counts as this many "votes" when blending with community ratings
+export const COMMUNITY_RATING_PRIOR_WEIGHT = 3;
+
 export const GENRES = [
   "Literary Fiction",
   "Contemporary Fiction",

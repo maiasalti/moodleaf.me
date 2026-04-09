@@ -1,14 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { BookWithScore, SliderValues, ReadingListWithBooks } from "@/lib/types";
 import { SLIDER_DIMENSIONS, categorizeBook, extractTraitValues } from "@/lib/constants";
 import MatchBadge from "./MatchBadge";
 import AddToListDropdown from "./AddToListDropdown";
+import TraitRatingForm from "./TraitRatingForm";
 
 interface BookDetailModalProps {
   book: BookWithScore;
   saved?: boolean;
+  isRead?: boolean;
+  userRating?: SliderValues | null;
+  communityCount?: number;
   onToggleSave?: (bookId: string) => void;
+  onToggleRead?: (bookId: string) => void;
+  onSubmitRating?: (bookId: string, values: SliderValues) => void;
   onClose: () => void;
   onMoreLikeThis?: (values: SliderValues) => void;
   readingLists?: ReadingListWithBooks[];
@@ -47,7 +54,12 @@ function TraitBar({ label, bookValue, userValue }: { label: string; bookValue: n
 export default function BookDetailModal({
   book,
   saved,
+  isRead,
+  userRating,
+  communityCount,
   onToggleSave,
+  onToggleRead,
+  onSubmitRating,
   onClose,
   onMoreLikeThis,
   readingLists,
@@ -55,6 +67,8 @@ export default function BookDetailModal({
   onRemoveFromList,
   onCreateList,
 }: BookDetailModalProps) {
+  const [showRatingForm, setShowRatingForm] = useState(false);
+  const [submittedRating, setSubmittedRating] = useState<SliderValues | null>(userRating ?? null);
   const genre = categorizeBook(book.categories);
 
   const handleShare = async () => {
@@ -159,6 +173,18 @@ export default function BookDetailModal({
                   {saved ? "Saved" : "Save"}
                 </button>
               )}
+              {onToggleRead && (
+                <button
+                  onClick={() => onToggleRead(book.id)}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                    isRead
+                      ? "bg-green-700 text-white hover:bg-green-800"
+                      : "bg-stone-200 text-stone-600 hover:bg-stone-300"
+                  }`}
+                >
+                  {isRead ? "Read" : "Mark as read"}
+                </button>
+              )}
               <button
                 id="share-feedback"
                 onClick={handleShare}
@@ -196,7 +222,14 @@ export default function BookDetailModal({
 
         {/* Trait bars */}
         <div className="border-t border-stone-200 px-6 py-5">
-          <h3 className="mb-4 font-serif text-lg font-semibold text-green-900">Trait profile</h3>
+          <div className="mb-4 flex items-center gap-2">
+            <h3 className="font-serif text-lg font-semibold text-green-900">Trait profile</h3>
+            {(communityCount ?? 0) > 0 && (
+              <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-800">
+                {communityCount} community rating{communityCount === 1 ? "" : "s"}
+              </span>
+            )}
+          </div>
           <div className="flex flex-col gap-3">
             {sortedTraits.map((trait) => (
               <TraitBar
@@ -211,6 +244,57 @@ export default function BookDetailModal({
             Bar = book score. Dot = your preference. Green = close match.
           </p>
         </div>
+
+        {/* Rating section — only visible when book is marked as read */}
+        {isRead && onSubmitRating && (
+          <div className="border-t border-stone-200 px-6 py-5">
+            {!showRatingForm && !submittedRating ? (
+              <button
+                onClick={() => setShowRatingForm(true)}
+                className="w-full rounded-lg border border-dashed border-green-700/40 px-4 py-3 text-sm font-medium text-green-800 transition-colors hover:bg-green-50"
+              >
+                Rate this book&apos;s traits
+              </button>
+            ) : showRatingForm ? (
+              <>
+                <h3 className="mb-4 font-serif text-lg font-semibold text-green-900">
+                  {submittedRating ? "Update your rating" : "Rate this book"}
+                </h3>
+                <TraitRatingForm
+                  initialValues={submittedRating ?? extractTraitValues(book)}
+                  isUpdate={!!submittedRating}
+                  onSubmit={(values) => {
+                    onSubmitRating(book.id, values);
+                    setSubmittedRating(values);
+                    setShowRatingForm(false);
+                  }}
+                />
+              </>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-serif text-lg font-semibold text-green-900">Your rating</h3>
+                  <button
+                    onClick={() => setShowRatingForm(true)}
+                    className="text-xs text-green-700 hover:text-green-900"
+                  >
+                    Edit
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                  {SLIDER_DIMENSIONS.map((dim) => (
+                    <div key={dim.key} className="flex items-center justify-between">
+                      <span className="text-xs text-stone-500">{dim.label}</span>
+                      <span className="font-mono text-xs font-medium text-stone-600">
+                        {submittedRating![dim.key]}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

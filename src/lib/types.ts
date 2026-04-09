@@ -75,3 +75,14 @@ export interface ReadingList {
 export interface ReadingListWithBooks extends ReadingList {
   books: Book[];
 }
+
+export interface CommunityAggregate {
+  means: SliderValues;
+  count: number;
+}
+
+export interface UserReadBook {
+  book: Book;
+  rating: SliderValues | null;
+  readAt: string;
+}
