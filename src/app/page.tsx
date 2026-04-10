@@ -20,6 +20,7 @@ import PageCountFilter from "@/components/PageCountFilter";
 import ResultsGrid from "@/components/ResultsGrid";
 import AuthModal from "@/components/AuthModal";
 import BookDetailModal from "@/components/BookDetailModal";
+import RatingModal from "@/components/RatingModal";
 import SearchBar from "@/components/SearchBar";
 import MoodPresets from "@/components/MoodPresets";
 import SaveMoodButton from "@/components/SaveMoodButton";
@@ -67,7 +68,7 @@ export default function Home() {
   const [readBookIds, setReadBookIds] = useState<Set<string>>(new Set());
   const [communityAggregates, setCommunityAggregates] = useState<Map<string, CommunityAggregate>>(new Map());
   const [selectedBookRating, setSelectedBookRating] = useState<SliderValues | null>(null);
-  const [openRatingOnMount, setOpenRatingOnMount] = useState(false);
+  const [ratingModalBook, setRatingModalBook] = useState<BookWithScore | null>(null);
 
   useEffect(() => {
     async function fetchBooks() {
@@ -249,12 +250,10 @@ export default function Home() {
     } else {
       await logBookAsRead(user.id, bookId);
       setReadBookIds((prev) => new Set(prev).add(bookId));
-      // Open the detail modal so user can rate traits
+      // Open the rating popup
       const book = results.find((b) => b.id === bookId);
       if (book) {
-        setSelectedBook(book);
-        setSelectedBookRating(null);
-        setOpenRatingOnMount(true);
+        setRatingModalBook(book);
       }
     }
   };
@@ -373,16 +372,23 @@ export default function Home() {
           isRead={readBookIds.has(selectedBook.id)}
           userRating={selectedBookRating}
           communityCount={communityAggregates.get(selectedBook.id)?.count ?? 0}
-          showRatingInitially={openRatingOnMount}
           onToggleSave={handleToggleSave}
           onToggleRead={handleToggleRead}
           onSubmitRating={handleSubmitRating}
-          onClose={() => { setSelectedBook(null); setSelectedBookRating(null); setOpenRatingOnMount(false); }}
+          onClose={() => { setSelectedBook(null); setSelectedBookRating(null); }}
           onMoreLikeThis={handleMoreLikeThis}
           readingLists={user ? readingLists : undefined}
           onAddToList={user ? handleAddToList : undefined}
           onRemoveFromList={user ? handleRemoveFromList : undefined}
           onCreateList={user ? handleCreateList : undefined}
+        />
+      )}
+      {ratingModalBook && (
+        <RatingModal
+          book={ratingModalBook}
+          userRating={null}
+          onSubmit={handleSubmitRating}
+          onClose={() => setRatingModalBook(null)}
         />
       )}
       {showOnboarding && onboardingBooks.length >= 3 && (
