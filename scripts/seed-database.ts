@@ -24,7 +24,12 @@ function appendAudit(text: string) {
   fs.appendFileSync(AUDIT_PATH, text + "\n");
 }
 
+// Set to true to force re-seeding all books (e.g., after trait system change)
+const FORCE_RESEED = true;
+
 async function bookIsComplete(title: string, author: string): Promise<boolean> {
+  if (FORCE_RESEED) return false;
+
   const { data, error } = await supabase
     .from("books")
     .select("id, pacing, cover_image_url")
@@ -97,23 +102,23 @@ async function fetchGoogleBooksMetadata(
 interface TraitScoresWithRationale {
   scores: {
     pacing: number;
-    character_depth: number;
-    emotional_weight: number;
+    prose_density: number;
+    characterization: number;
+    emotional_impact: number;
     plot_complexity: number;
-    prose_style: number;
-    mood: number;
-    spice_level: number;
-    world_building: number;
+    humor: number;
+    darkness: number;
+    intellectual_challenge: number;
   };
   rationale: {
     pacing: string;
-    character_depth: string;
-    emotional_weight: string;
+    prose_density: string;
+    characterization: string;
+    emotional_impact: string;
     plot_complexity: string;
-    prose_style: string;
-    mood: string;
-    spice_level: string;
-    world_building: string;
+    humor: string;
+    darkness: string;
+    intellectual_challenge: string;
   };
 }
 
@@ -126,7 +131,7 @@ async function fetchTraitScores(
   const prompt = `You are a literary analyst scoring books on reader-experience dimensions.
 Given the following book, rate it on each dimension from 1-10.
 Be opinionated and precise — avoid clustering everything around 5.
-Use the full range of the scale.
+Use the full range of the scale. Both ends of each scale represent valid, desirable qualities.
 
 Book: ${title} by ${author}
 Description: ${description}
@@ -137,24 +142,24 @@ Respond ONLY with valid JSON, no other text:
 
 {
   "scores": {
-    "pacing": <1=slow burn/contemplative, 10=relentless page-turner>,
-    "character_depth": <1=plot-driven/action-focused, 10=deeply character-driven>,
-    "emotional_weight": <1=light/cerebral/humorous, 10=emotionally heavy/devastating>,
-    "plot_complexity": <1=linear/straightforward, 10=multi-threaded/intricate>,
-    "prose_style": <1=sparse/direct/minimal, 10=lush/literary/ornate>,
-    "mood": <1=dark/gritty/bleak, 10=hopeful/warm/uplifting>,
-    "spice_level": <1=clean/no romance, 10=steamy/explicit romance>,
-    "world_building": <1=grounded/real-world, 10=expansive/immersive world>
+    "pacing": <1=leisurely (scenes linger, savoring detail) to 10=rapid (events unfold quickly, page-turning momentum)>,
+    "prose_density": <1=transparent (plain, utilitarian language) to 10=lush (highly stylized, lyrical, rhetorically rich)>,
+    "characterization": <1=archetypal (characters as clear symbols/roles, limited nuance) to 10=deeply nuanced (internally complex, contradictory, developmentally rich)>,
+    "emotional_impact": <1=cool (emotion present but muted, rarely aims for gut-punch) to 10=overwhelming (strong emotional intensity, readers feel shaken/moved)>,
+    "plot_complexity": <1=straightforward (one main through-line, few reversals) to 10=intricate (multiple threads, timelines, nested structures, frequent twists)>,
+    "humor": <1=earnest (humor is rare, tone stays mostly serious) to 10=comedic (humor is frequent and central to the reading experience)>,
+    "darkness": <1=safe (comforting, gentle, low-disturbance tone) to 10=disturbing (bleak, grim, or psychologically/viscerally unsettling)>,
+    "intellectual_challenge": <1=effortless (easy to follow while tired/distracted) to 10=demanding (requires sustained attention, dense allusions/experimentation)>
   },
   "rationale": {
     "pacing": "<why this score>",
-    "character_depth": "<why this score>",
-    "emotional_weight": "<why this score>",
+    "prose_density": "<why this score>",
+    "characterization": "<why this score>",
+    "emotional_impact": "<why this score>",
     "plot_complexity": "<why this score>",
-    "prose_style": "<why this score>",
-    "mood": "<why this score>",
-    "spice_level": "<why this score>",
-    "world_building": "<why this score>"
+    "humor": "<why this score>",
+    "darkness": "<why this score>",
+    "intellectual_challenge": "<why this score>"
   }
 }`;
 

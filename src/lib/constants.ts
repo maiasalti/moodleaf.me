@@ -1,23 +1,31 @@
 import { SliderDimension, SliderValues, MoodPreset, Book, TraitKey } from "./types";
 
 export const SLIDER_DIMENSIONS: SliderDimension[] = [
+  // Main 3 (always visible)
   {
     key: "pacing",
-    label: "Pacing",
-    lowLabel: "Slow burn",
-    highLabel: "Page-turner",
+    label: "Pace",
+    lowLabel: "Leisurely",
+    highLabel: "Rapid",
   },
   {
-    key: "character_depth",
-    label: "Character Depth",
-    lowLabel: "Plot-driven",
-    highLabel: "Character-driven",
+    key: "prose_density",
+    label: "Prose Density",
+    lowLabel: "Transparent",
+    highLabel: "Lush",
   },
   {
-    key: "emotional_weight",
-    label: "Emotional Weight",
-    lowLabel: "Light / humorous",
-    highLabel: "Emotionally heavy",
+    key: "characterization",
+    label: "Characterization",
+    lowLabel: "Archetypal",
+    highLabel: "Deeply nuanced",
+  },
+  // Optional 5
+  {
+    key: "emotional_impact",
+    label: "Emotional Impact",
+    lowLabel: "Cool",
+    highLabel: "Overwhelming",
   },
   {
     key: "plot_complexity",
@@ -26,40 +34,37 @@ export const SLIDER_DIMENSIONS: SliderDimension[] = [
     highLabel: "Intricate",
   },
   {
-    key: "prose_style",
-    label: "Prose Style",
-    lowLabel: "Sparse / direct",
-    highLabel: "Lush / literary",
+    key: "humor",
+    label: "Humor",
+    lowLabel: "Earnest",
+    highLabel: "Comedic",
   },
   {
-    key: "mood",
-    label: "Mood",
-    lowLabel: "Dark / gritty",
-    highLabel: "Hopeful / warm",
+    key: "darkness",
+    label: "Darkness",
+    lowLabel: "Safe",
+    highLabel: "Disturbing",
   },
   {
-    key: "spice_level",
-    label: "Spice Level",
-    lowLabel: "Clean",
-    highLabel: "Steamy",
-  },
-  {
-    key: "world_building",
-    label: "World Building",
-    lowLabel: "Grounded",
-    highLabel: "Expansive",
+    key: "intellectual_challenge",
+    label: "Intellectual Challenge",
+    lowLabel: "Effortless",
+    highLabel: "Demanding",
   },
 ];
 
+export const MAIN_TRAIT_KEYS: TraitKey[] = ["pacing", "prose_density", "characterization"];
+export const OPTIONAL_TRAIT_KEYS: TraitKey[] = ["emotional_impact", "plot_complexity", "humor", "darkness", "intellectual_challenge"];
+
 export const DEFAULT_SLIDER_VALUES: SliderValues = {
   pacing: 5,
-  character_depth: 5,
-  emotional_weight: 5,
+  prose_density: 5,
+  characterization: 5,
+  emotional_impact: 5,
   plot_complexity: 5,
-  prose_style: 5,
-  mood: 5,
-  spice_level: 5,
-  world_building: 5,
+  humor: 5,
+  darkness: 5,
+  intellectual_challenge: 5,
 };
 
 export const TRAIT_KEYS = SLIDER_DIMENSIONS.map((d) => d.key);
@@ -85,54 +90,54 @@ export const MOOD_PRESETS: MoodPreset[] = [
     name: "Beach read",
     icon: "\u{1F3D6}\u{FE0F}",
     values: {
-      pacing: 8, character_depth: 4, emotional_weight: 3,
-      plot_complexity: 4, prose_style: 3, mood: 8,
-      spice_level: 5, world_building: 3,
+      pacing: 8, prose_density: 3, characterization: 4,
+      emotional_impact: 3, plot_complexity: 4, humor: 6,
+      darkness: 2, intellectual_challenge: 2,
     },
   },
   {
     name: "Dark academia",
     icon: "\u{1F56F}\u{FE0F}",
     values: {
-      pacing: 3, character_depth: 8, emotional_weight: 7,
-      plot_complexity: 7, prose_style: 8, mood: 3,
-      spice_level: 3, world_building: 5,
+      pacing: 3, prose_density: 8, characterization: 8,
+      emotional_impact: 7, plot_complexity: 7, humor: 2,
+      darkness: 6, intellectual_challenge: 8,
     },
   },
   {
     name: "Emotional gut-punch",
     icon: "\u{1F494}",
     values: {
-      pacing: 4, character_depth: 9, emotional_weight: 10,
-      plot_complexity: 5, prose_style: 7, mood: 4,
-      spice_level: 2, world_building: 3,
+      pacing: 4, prose_density: 7, characterization: 9,
+      emotional_impact: 10, plot_complexity: 5, humor: 2,
+      darkness: 7, intellectual_challenge: 5,
     },
   },
   {
     name: "Light & fast",
     icon: "\u{26A1}",
     values: {
-      pacing: 9, character_depth: 4, emotional_weight: 2,
-      plot_complexity: 3, prose_style: 3, mood: 9,
-      spice_level: 3, world_building: 3,
+      pacing: 9, prose_density: 3, characterization: 4,
+      emotional_impact: 3, plot_complexity: 3, humor: 7,
+      darkness: 2, intellectual_challenge: 2,
     },
   },
   {
     name: "Cozy escape",
     icon: "\u{2615}",
     values: {
-      pacing: 4, character_depth: 7, emotional_weight: 4,
-      plot_complexity: 4, prose_style: 5, mood: 9,
-      spice_level: 2, world_building: 5,
+      pacing: 4, prose_density: 5, characterization: 7,
+      emotional_impact: 5, plot_complexity: 4, humor: 5,
+      darkness: 1, intellectual_challenge: 3,
     },
   },
   {
     name: "Epic adventure",
     icon: "\u{2694}\u{FE0F}",
     values: {
-      pacing: 8, character_depth: 6, emotional_weight: 5,
-      plot_complexity: 8, prose_style: 5, mood: 7,
-      spice_level: 2, world_building: 9,
+      pacing: 8, prose_density: 5, characterization: 6,
+      emotional_impact: 6, plot_complexity: 8, humor: 3,
+      darkness: 5, intellectual_challenge: 5,
     },
   },
 ];

@@ -9,13 +9,13 @@ export interface Book {
   isbn: string | null;
   categories: string[] | null;
   pacing: number;
-  character_depth: number;
-  emotional_weight: number;
+  prose_density: number;
+  characterization: number;
+  emotional_impact: number;
   plot_complexity: number;
-  prose_style: number;
-  mood: number;
-  spice_level: number;
-  world_building: number;
+  humor: number;
+  darkness: number;
+  intellectual_challenge: number;
 }
 
 export interface SliderDimension {
@@ -27,23 +27,23 @@ export interface SliderDimension {
 
 export type TraitKey =
   | "pacing"
-  | "character_depth"
-  | "emotional_weight"
+  | "prose_density"
+  | "characterization"
+  | "emotional_impact"
   | "plot_complexity"
-  | "prose_style"
-  | "mood"
-  | "spice_level"
-  | "world_building";
+  | "humor"
+  | "darkness"
+  | "intellectual_challenge";
 
 export interface SliderValues {
   pacing: number;
-  character_depth: number;
-  emotional_weight: number;
+  prose_density: number;
+  characterization: number;
+  emotional_impact: number;
   plot_complexity: number;
-  prose_style: number;
-  mood: number;
-  spice_level: number;
-  world_building: number;
+  humor: number;
+  darkness: number;
+  intellectual_challenge: number;
 }
 
 export interface TraitMatch {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Book, SliderValues, TraitKey, BookWithScore, ReadingListWithBooks, CommunityAggregate } from "@/lib/types";
-import { DEFAULT_SLIDER_VALUES, GENRES, categorizeBook, PAGE_COUNT_RANGES, extractTraitValues } from "@/lib/constants";
+import { DEFAULT_SLIDER_VALUES, GENRES, categorizeBook, PAGE_COUNT_RANGES, extractTraitValues, MAIN_TRAIT_KEYS } from "@/lib/constants";
 import { ONBOARDING_TITLES } from "@/lib/onboarding-books";
 import { rankBooks } from "@/lib/recommendation";
 import { supabase } from "@/lib/supabase";
@@ -39,6 +39,7 @@ export default function Home() {
   const [lockedDimensions, setLockedDimensions] = useState<Set<TraitKey>>(
     new Set()
   );
+  const [enabledOptionalTraits, setEnabledOptionalTraits] = useState<Set<TraitKey>>(new Set());
   const [selectedGenres, setSelectedGenres] = useState<Set<string>>(new Set());
   const [selectedPageRanges, setSelectedPageRanges] = useState<Set<string>>(new Set());
   const [savedBookIds, setSavedBookIds] = useState<Set<string>>(new Set());
@@ -121,8 +122,10 @@ export default function Home() {
     }
   }, [user]);
 
+  const activeTraits: TraitKey[] = [...MAIN_TRAIT_KEYS, ...enabledOptionalTraits];
+
   const updateResults = useCallback(
-    (values: SliderValues, locked: Set<TraitKey>, genres: Set<string>, books: Book[], query: string, pageRanges: Set<string>) => {
+    (values: SliderValues, locked: Set<TraitKey>, genres: Set<string>, books: Book[], query: string, pageRanges: Set<string>, traits: TraitKey[]) => {
       if (books.length === 0) return;
 
       let filtered = books;
@@ -146,16 +149,16 @@ export default function Home() {
         });
       }
 
-      const ranked = rankBooks(filtered, values, locked, genres);
+      const ranked = rankBooks(filtered, values, locked, genres, undefined, traits);
       setResults(ranked);
     },
     []
   );
 
   useEffect(() => {
-    updateResults(sliderValues, lockedDimensions, selectedGenres, allBooks, searchQuery, selectedPageRanges);
+    updateResults(sliderValues, lockedDimensions, selectedGenres, allBooks, searchQuery, selectedPageRanges, activeTraits);
     setVisibleCount(RESULTS_PER_PAGE);
-  }, [sliderValues, lockedDimensions, selectedGenres, allBooks, searchQuery, selectedPageRanges, updateResults]);
+  }, [sliderValues, lockedDimensions, selectedGenres, allBooks, searchQuery, selectedPageRanges, enabledOptionalTraits, updateResults]);
 
   const handleSliderChange = (key: TraitKey, value: number) => {
     setSliderValues((prev) => ({ ...prev, [key]: value }));
@@ -176,6 +179,21 @@ export default function Home() {
     setSelectedGenres(new Set());
     setSelectedPageRanges(new Set());
     setSearchQuery("");
+    setEnabledOptionalTraits(new Set());
+  };
+
+  const handleToggleOptionalTrait = (key: TraitKey) => {
+    setEnabledOptionalTraits((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+        // Reset this trait's value to default when removing
+        setSliderValues((v) => ({ ...v, [key]: 5 }));
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
   };
 
   const handlePresetSelect = (values: SliderValues) => {
@@ -341,8 +359,10 @@ export default function Home() {
       <SliderPanel
         values={sliderValues}
         lockedDimensions={lockedDimensions}
+        enabledOptionalTraits={enabledOptionalTraits}
         onChange={handleSliderChange}
         onToggleLock={handleToggleLock}
+        onToggleOptionalTrait={handleToggleOptionalTrait}
         onReset={handleReset}
       />
       <ResultsGrid

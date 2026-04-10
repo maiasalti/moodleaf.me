@@ -4,7 +4,7 @@ import { useState } from "react";
 import { SliderValues, TraitKey } from "@/lib/types";
 import { SLIDER_DIMENSIONS } from "@/lib/constants";
 
-const REQUIRED_TRAITS: Set<TraitKey> = new Set(["pacing", "mood", "plot_complexity"]);
+const REQUIRED_TRAITS: Set<TraitKey> = new Set(["pacing", "characterization", "plot_complexity"]);
 
 interface TraitRatingFormProps {
   initialValues: SliderValues;

@@ -43,7 +43,7 @@ export async function getUserRating(userId: string, bookId: string): Promise<Sli
   if (!supabase) return null;
   const { data } = await supabase
     .from("user_book_ratings")
-    .select("pacing, character_depth, emotional_weight, plot_complexity, prose_style, mood, spice_level, world_building")
+    .select("pacing, prose_density, characterization, emotional_impact, plot_complexity, humor, darkness, intellectual_challenge")
     .eq("user_id", userId)
     .eq("book_id", bookId)
     .single();
@@ -76,7 +76,7 @@ export async function getBookCommunityAggregates(
 
   const { data } = await supabase
     .from("user_book_ratings")
-    .select("book_id, pacing, character_depth, emotional_weight, plot_complexity, prose_style, mood, spice_level, world_building")
+    .select("book_id, pacing, prose_density, characterization, emotional_impact, plot_complexity, humor, darkness, intellectual_challenge")
     .in("book_id", bookIds);
 
   if (!data || data.length === 0) return map;
@@ -87,13 +87,13 @@ export async function getBookCommunityAggregates(
     const ratings = grouped.get(row.book_id) || [];
     ratings.push({
       pacing: row.pacing,
-      character_depth: row.character_depth,
-      emotional_weight: row.emotional_weight,
+      prose_density: row.prose_density,
+      characterization: row.characterization,
+      emotional_impact: row.emotional_impact,
       plot_complexity: row.plot_complexity,
-      prose_style: row.prose_style,
-      mood: row.mood,
-      spice_level: row.spice_level,
-      world_building: row.world_building,
+      humor: row.humor,
+      darkness: row.darkness,
+      intellectual_challenge: row.intellectual_challenge,
     });
     grouped.set(row.book_id, ratings);
   }
@@ -143,20 +143,20 @@ export async function getUserReadBooksWithRatings(userId: string): Promise<UserR
 
   const { data: ratingsData } = await supabase
     .from("user_book_ratings")
-    .select("book_id, pacing, character_depth, emotional_weight, plot_complexity, prose_style, mood, spice_level, world_building")
+    .select("book_id, pacing, prose_density, characterization, emotional_impact, plot_complexity, humor, darkness, intellectual_challenge")
     .eq("user_id", userId);
 
   const ratingsMap = new Map<string, SliderValues>();
   for (const r of ratingsData ?? []) {
     ratingsMap.set(r.book_id, {
       pacing: r.pacing,
-      character_depth: r.character_depth,
-      emotional_weight: r.emotional_weight,
+      prose_density: r.prose_density,
+      characterization: r.characterization,
+      emotional_impact: r.emotional_impact,
       plot_complexity: r.plot_complexity,
-      prose_style: r.prose_style,
-      mood: r.mood,
-      spice_level: r.spice_level,
-      world_building: r.world_building,
+      humor: r.humor,
+      darkness: r.darkness,
+      intellectual_challenge: r.intellectual_challenge,
     });
   }
 
