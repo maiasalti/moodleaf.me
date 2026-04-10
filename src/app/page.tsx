@@ -11,7 +11,7 @@ import { getSavedBookIds, saveBook, unsaveBook } from "@/lib/saved-books";
 import { getUserLists, createList, addBookToList, removeBookFromList } from "@/lib/reading-lists";
 import { getReadBookIds, logBookAsRead, unlogBook, getBookCommunityAggregates, blendTraits, getUserRating, upsertRating } from "@/lib/community-ratings";
 import { useAnimatedSliders } from "@/lib/use-animated-sliders";
-import { useHiddenBooks } from "@/lib/use-hidden-books";
+
 import { useSavedMoods } from "@/lib/use-saved-moods";
 import Hero from "@/components/Hero";
 import SliderPanel from "@/components/SliderPanel";
@@ -49,10 +49,6 @@ export default function Home() {
 
   // Animated sliders
   const { setSliderValuesAnimated } = useAnimatedSliders(sliderValues, setSliderValues);
-
-  // Hidden books
-  const { hiddenIds, hideBook } = useHiddenBooks();
-  const [showHidden, setShowHidden] = useState(false);
 
   // Saved moods
   const { savedMoods, saveMood, deleteMood } = useSavedMoods();
@@ -292,12 +288,6 @@ export default function Home() {
     }
   };
 
-  // Filter hidden books from display
-  const displayResults = showHidden
-    ? results
-    : results.filter((b) => !hiddenIds.has(b.id));
-  const hiddenCount = results.length - results.filter((b) => !hiddenIds.has(b.id)).length;
-
   return (
     <div className="flex min-h-screen flex-col">
       <Hero />
@@ -349,15 +339,13 @@ export default function Home() {
         onReset={handleReset}
       />
       <ResultsGrid
-        books={displayResults}
+        books={results}
         loading={loading}
         visibleCount={visibleCount}
         savedBookIds={savedBookIds}
-        hiddenCount={hiddenCount}
-        showHidden={showHidden}
+        readBookIds={readBookIds}
         onToggleSave={handleToggleSave}
-        onHide={hideBook}
-        onToggleShowHidden={() => setShowHidden((prev) => !prev)}
+        onToggleRead={handleToggleRead}
         onShowMore={handleShowMore}
         onBookClick={async (book) => {
           setSelectedBook(book);

@@ -8,11 +8,9 @@ interface ResultsGridProps {
   loading: boolean;
   visibleCount: number;
   savedBookIds?: Set<string>;
-  hiddenCount?: number;
-  showHidden?: boolean;
+  readBookIds?: Set<string>;
   onToggleSave?: (bookId: string) => void;
-  onHide?: (bookId: string) => void;
-  onToggleShowHidden?: () => void;
+  onToggleRead?: (bookId: string) => void;
   onShowMore?: () => void;
   onBookClick?: (book: BookWithScore) => void;
 }
@@ -22,11 +20,9 @@ export default function ResultsGrid({
   loading,
   visibleCount,
   savedBookIds,
-  hiddenCount = 0,
-  showHidden = false,
+  readBookIds,
   onToggleSave,
-  onHide,
-  onToggleShowHidden,
+  onToggleRead,
   onShowMore,
   onBookClick,
 }: ResultsGridProps) {
@@ -67,14 +63,6 @@ export default function ResultsGrid({
         <h2 className="text-center font-serif text-2xl font-semibold text-green-900">
           Your recommendations
         </h2>
-        {hiddenCount > 0 && onToggleShowHidden && (
-          <button
-            onClick={onToggleShowHidden}
-            className="rounded-full bg-stone-100 px-3 py-1 text-xs text-stone-500 transition-colors hover:bg-stone-200"
-          >
-            {hiddenCount} hidden · {showHidden ? "Hide" : "Show"}
-          </button>
-        )}
       </div>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {visible.map((book, i) => (
@@ -83,8 +71,9 @@ export default function ResultsGrid({
             book={book}
             index={i}
             saved={savedBookIds?.has(book.id)}
+            isRead={readBookIds?.has(book.id)}
             onToggleSave={onToggleSave}
-            onHide={onHide}
+            onToggleRead={onToggleRead}
             onClick={() => onBookClick?.(book)}
           />
         ))}
