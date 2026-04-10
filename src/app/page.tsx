@@ -67,6 +67,7 @@ export default function Home() {
   const [readBookIds, setReadBookIds] = useState<Set<string>>(new Set());
   const [communityAggregates, setCommunityAggregates] = useState<Map<string, CommunityAggregate>>(new Map());
   const [selectedBookRating, setSelectedBookRating] = useState<SliderValues | null>(null);
+  const [openRatingOnMount, setOpenRatingOnMount] = useState(false);
 
   useEffect(() => {
     async function fetchBooks() {
@@ -248,6 +249,13 @@ export default function Home() {
     } else {
       await logBookAsRead(user.id, bookId);
       setReadBookIds((prev) => new Set(prev).add(bookId));
+      // Open the detail modal so user can rate traits
+      const book = results.find((b) => b.id === bookId);
+      if (book) {
+        setSelectedBook(book);
+        setSelectedBookRating(null);
+        setOpenRatingOnMount(true);
+      }
     }
   };
 
@@ -365,10 +373,11 @@ export default function Home() {
           isRead={readBookIds.has(selectedBook.id)}
           userRating={selectedBookRating}
           communityCount={communityAggregates.get(selectedBook.id)?.count ?? 0}
+          showRatingInitially={openRatingOnMount}
           onToggleSave={handleToggleSave}
           onToggleRead={handleToggleRead}
           onSubmitRating={handleSubmitRating}
-          onClose={() => { setSelectedBook(null); setSelectedBookRating(null); }}
+          onClose={() => { setSelectedBook(null); setSelectedBookRating(null); setOpenRatingOnMount(false); }}
           onMoreLikeThis={handleMoreLikeThis}
           readingLists={user ? readingLists : undefined}
           onAddToList={user ? handleAddToList : undefined}

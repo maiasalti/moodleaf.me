@@ -13,6 +13,7 @@ interface BookDetailModalProps {
   isRead?: boolean;
   userRating?: SliderValues | null;
   communityCount?: number;
+  showRatingInitially?: boolean;
   onToggleSave?: (bookId: string) => void;
   onToggleRead?: (bookId: string) => void;
   onSubmitRating?: (bookId: string, values: SliderValues) => void;
@@ -57,6 +58,7 @@ export default function BookDetailModal({
   isRead,
   userRating,
   communityCount,
+  showRatingInitially,
   onToggleSave,
   onToggleRead,
   onSubmitRating,
@@ -67,7 +69,7 @@ export default function BookDetailModal({
   onRemoveFromList,
   onCreateList,
 }: BookDetailModalProps) {
-  const [showRatingForm, setShowRatingForm] = useState(false);
+  const [showRatingForm, setShowRatingForm] = useState(showRatingInitially ?? false);
   const [submittedRating, setSubmittedRating] = useState<SliderValues | null>(userRating ?? null);
   const genre = categorizeBook(book.categories);
 
