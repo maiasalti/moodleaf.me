@@ -74,10 +74,11 @@ export async function getBookCommunityAggregates(
   const map = new Map<string, CommunityAggregate>();
   if (!supabase || bookIds.length === 0) return map;
 
+  // Fetch all ratings — table is small (only authenticated users' ratings).
+  // Avoiding .in() because 400+ book IDs would exceed URL length limits.
   const { data } = await supabase
     .from("user_book_ratings")
-    .select("book_id, pacing, prose_density, characterization, emotional_impact, plot_complexity, humor, darkness, intellectual_challenge")
-    .in("book_id", bookIds);
+    .select("book_id, pacing, prose_density, characterization, emotional_impact, plot_complexity, humor, darkness, intellectual_challenge");
 
   if (!data || data.length === 0) return map;
 
