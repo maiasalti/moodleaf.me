@@ -31,6 +31,7 @@ export default function SliderPanel({
   const optionalDims = SLIDER_DIMENSIONS.filter((d) => OPTIONAL_TRAIT_KEYS.includes(d.key));
   const enabledOptionalDims = optionalDims.filter((d) => enabledOptionalTraits.has(d.key));
   const disabledOptionalDims = optionalDims.filter((d) => !enabledOptionalTraits.has(d.key));
+  const allActiveDims = [...mainDims, ...enabledOptionalDims];
 
   return (
     <section className="mx-auto w-full max-w-2xl px-6">
@@ -48,24 +49,11 @@ export default function SliderPanel({
         )}
       </div>
 
-      {/* Main traits — always visible */}
+      {/* All active sliders (main + enabled optional) in one grid */}
       <div className="grid gap-3 sm:grid-cols-2">
-        {mainDims.map((dim) => (
-          <Slider
-            key={dim.key}
-            dimension={dim}
-            value={values[dim.key]}
-            locked={lockedDimensions.has(dim.key)}
-            onChange={(val) => onChange(dim.key, val)}
-            onToggleLock={() => onToggleLock(dim.key)}
-          />
-        ))}
-      </div>
-
-      {/* Enabled optional traits */}
-      {enabledOptionalDims.length > 0 && (
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {enabledOptionalDims.map((dim) => (
+        {allActiveDims.map((dim) => {
+          const isOptional = OPTIONAL_TRAIT_KEYS.includes(dim.key);
+          return (
             <div key={dim.key} className="relative">
               <Slider
                 dimension={dim}
@@ -74,17 +62,19 @@ export default function SliderPanel({
                 onChange={(val) => onChange(dim.key, val)}
                 onToggleLock={() => onToggleLock(dim.key)}
               />
-              <button
-                onClick={() => onToggleOptionalTrait(dim.key)}
-                className="absolute top-2 right-2 text-[10px] text-stone-400 hover:text-red-500 transition-colors"
-                title="Remove filter"
-              >
-                ✕
-              </button>
+              {isOptional && (
+                <button
+                  onClick={() => onToggleOptionalTrait(dim.key)}
+                  className="absolute top-2 right-2 text-[10px] text-stone-400 hover:text-red-500 transition-colors"
+                  title="Remove filter"
+                >
+                  ✕
+                </button>
+              )}
             </div>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
 
       {/* Add optional trait buttons */}
       {disabledOptionalDims.length > 0 && (
