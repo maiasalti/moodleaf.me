@@ -18,6 +18,9 @@ export default function Hero() {
         </div>
       </header>
       <section className="flex flex-col items-center px-6 pt-10 pb-12 text-center md:pt-16 md:pb-16">
+        <p className="mb-4 rounded-full bg-red-50 px-4 py-1.5 text-xs font-medium text-red-600">
+          Still in beta — we&apos;d love your feedback via the button in the bottom left
+        </p>
         <h1 className="font-serif text-5xl font-bold tracking-tight text-green-900 md:text-7xl">
           Moodleaf
         </h1>

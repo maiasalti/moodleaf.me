@@ -11,8 +11,6 @@ import { getSavedBookIds, saveBook, unsaveBook } from "@/lib/saved-books";
 import { getUserLists, createList, addBookToList, removeBookFromList } from "@/lib/reading-lists";
 import { getReadBookIds, logBookAsRead, unlogBook, getBookCommunityAggregates, blendTraits, getUserRating, upsertRating } from "@/lib/community-ratings";
 import { useAnimatedSliders } from "@/lib/use-animated-sliders";
-
-import { useSavedMoods } from "@/lib/use-saved-moods";
 import Hero from "@/components/Hero";
 import SliderPanel from "@/components/SliderPanel";
 import GenreFilter from "@/components/GenreFilter";
@@ -22,8 +20,6 @@ import AuthModal from "@/components/AuthModal";
 import BookDetailModal from "@/components/BookDetailModal";
 import RatingModal from "@/components/RatingModal";
 import SearchBar from "@/components/SearchBar";
-import MoodPresets from "@/components/MoodPresets";
-import SaveMoodButton from "@/components/SaveMoodButton";
 import BookSearchSelect from "@/components/BookSearchSelect";
 import OnboardingModal from "@/components/OnboardingModal";
 import Footer from "@/components/Footer";
@@ -51,9 +47,6 @@ export default function Home() {
 
   // Animated sliders
   const { setSliderValuesAnimated } = useAnimatedSliders(sliderValues, setSliderValues);
-
-  // Saved moods
-  const { savedMoods, saveMood, deleteMood } = useSavedMoods();
 
   // Book search select ("I just finished X")
   const [showBookSearch, setShowBookSearch] = useState(false);
@@ -196,11 +189,6 @@ export default function Home() {
     });
   };
 
-  const handlePresetSelect = (values: SliderValues) => {
-    setSliderValuesAnimated(values);
-    setLockedDimensions(new Set());
-  };
-
   const handleToggleSave = async (bookId: string) => {
     if (!user) {
       setShowAuthPrompt(true);
@@ -329,32 +317,6 @@ export default function Home() {
             onChange={setSelectedPageRanges}
           />
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          <MoodPresets
-            onSelect={handlePresetSelect}
-            savedMoods={savedMoods}
-            onDeleteMood={deleteMood}
-          />
-        </div>
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          <SaveMoodButton values={sliderValues} onSave={saveMood} />
-          {!showBookSearch ? (
-            <button
-              onClick={() => setShowBookSearch(true)}
-              className="rounded-full border border-stone-200 bg-[var(--color-surface)]/70 px-4 py-2 text-sm font-medium text-stone-600 backdrop-blur-sm transition-all hover:border-green-700 hover:bg-green-50 hover:text-green-800"
-            >
-              Match a book
-            </button>
-          ) : (
-            <div className="w-full max-w-md">
-              <BookSearchSelect
-                books={allBooks}
-                onSelect={handleBookSearchSelect}
-                onClose={() => setShowBookSearch(false)}
-              />
-            </div>
-          )}
-        </div>
       </div>
       <SliderPanel
         values={sliderValues}
@@ -365,6 +327,24 @@ export default function Home() {
         onToggleOptionalTrait={handleToggleOptionalTrait}
         onReset={handleReset}
       />
+      <div className="mx-auto w-full max-w-2xl px-6 py-4 flex justify-center">
+        {!showBookSearch ? (
+          <button
+            onClick={() => setShowBookSearch(true)}
+            className="rounded-full border border-stone-200 bg-[var(--color-surface)]/70 px-4 py-2 text-sm font-medium text-stone-600 backdrop-blur-sm transition-all hover:border-green-700 hover:bg-green-50 hover:text-green-800"
+          >
+            Match a book
+          </button>
+        ) : (
+          <div className="w-full max-w-md">
+            <BookSearchSelect
+              books={allBooks}
+              onSelect={handleBookSearchSelect}
+              onClose={() => setShowBookSearch(false)}
+            />
+          </div>
+        )}
+      </div>
       <ResultsGrid
         books={results}
         loading={loading}
