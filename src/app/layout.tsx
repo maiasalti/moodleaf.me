@@ -1,10 +1,22 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Abel, DM_Sans } from "next/font/google";
 import { AuthProvider } from "@/lib/auth-context";
 import { ThemeProvider } from "@/lib/theme-context";
 import { CookieBanner } from "@/components/cookie-banner";
 import FeedbackButton from "@/components/FeedbackButton";
 import "./globals.css";
+
+const abel = Abel({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-display",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-body",
+});
 
 export const metadata: Metadata = {
   title: "Moodleaf — Find your next favorite book",
@@ -24,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${abel.variable} ${dmSans.variable}`}>
       <body className="min-h-screen font-sans antialiased">
         <ThemeProvider>
           <AuthProvider>
