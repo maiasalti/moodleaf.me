@@ -34,6 +34,13 @@ export const metadata: Metadata = {
     description:
       "Adjust sliders to match your reading mood, and discover the perfect books for you.",
     siteName: "Moodleaf",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Moodleaf — Find your next favorite book",
+    description: "Adjust sliders to match your reading mood, and discover the perfect books for you.",
+    images: ["/og-image.png"],
   },
 };
 
