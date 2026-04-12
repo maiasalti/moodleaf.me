@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     "Adjust sliders to match your reading mood, and discover the perfect books for you.",
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "32x32" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon.png", sizes: "256x256", type: "image/png" },
     ],
     apple: "/apple-touch-icon.png",
