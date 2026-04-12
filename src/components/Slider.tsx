@@ -8,6 +8,7 @@ interface SliderProps {
   locked: boolean;
   onChange: (value: number) => void;
   onToggleLock: () => void;
+  onInfoClick?: () => void;
 }
 
 export default function Slider({
@@ -16,15 +17,20 @@ export default function Slider({
   locked,
   onChange,
   onToggleLock,
+  onInfoClick,
 }: SliderProps) {
   const percentage = ((value - 1) / 9) * 100;
 
   return (
     <div className="group flex flex-col gap-2 rounded-xl bg-[var(--color-surface)]/60 px-5 py-4 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-green-900">
+        <button
+          onClick={onInfoClick}
+          className="text-sm font-semibold text-green-900 underline decoration-dotted decoration-stone-300 underline-offset-2 hover:decoration-green-700 transition-colors"
+          title={`What is ${dimension.label}?`}
+        >
           {dimension.label}
-        </span>
+        </button>
         <div className="flex items-center gap-2">
           <span className="min-w-[2ch] text-right font-mono text-sm font-medium text-stone-600">
             {value}

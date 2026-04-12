@@ -7,18 +7,21 @@ export const SLIDER_DIMENSIONS: SliderDimension[] = [
     label: "Pace",
     lowLabel: "Leisurely",
     highLabel: "Rapid",
+    description: "How quickly the story feels like it moves forward. Low = scenes linger, savoring detail and atmosphere. High = events unfold quickly with page-turning momentum. Independent of book length.",
   },
   {
     key: "prose_density",
     label: "Prose Density",
     lowLabel: "Transparent",
     highLabel: "Lush",
+    description: "How much the reading experience is driven by the language itself. Low = plain, get-the-job-done writing where you read for what happens next. High = lyrical, stylized prose where sentences themselves are a source of pleasure.",
   },
   {
     key: "characterization",
     label: "Characterization",
     lowLabel: "Archetypal",
     highLabel: "Deeply nuanced",
+    description: "The psychological dimensionality of the central characters. Low = characters serve as clear symbols or roles with limited nuance. High = characters feel internally complex, contradictory, and developmentally rich.",
   },
   // Optional 5
   {
@@ -26,30 +29,35 @@ export const SLIDER_DIMENSIONS: SliderDimension[] = [
     label: "Emotional Impact",
     lowLabel: "Cool",
     highLabel: "Overwhelming",
+    description: "The intensity of emotion the book provokes — regardless of whether it's sadness, joy, anxiety, or something else. Low = emotion is present but muted. High = readers feel shaken, moved, or emotionally drained.",
   },
   {
     key: "plot_complexity",
     label: "Plot Complexity",
     lowLabel: "Straightforward",
     highLabel: "Intricate",
+    description: "How structurally complicated the story is. Low = one main storyline, few reversals, easy to summarize. High = multiple plot threads, timelines, nested structures, or frequent twists that reward careful tracking.",
   },
   {
     key: "humor",
     label: "Humor",
     lowLabel: "Earnest",
     highLabel: "Comedic",
+    description: "How often the text deliberately produces amusement. Low = humor is rare and the tone stays mostly serious. High = humor is frequent and central to the reading experience, whether through jokes, satire, or witty narration.",
   },
   {
     key: "darkness",
     label: "Darkness",
     lowLabel: "Safe",
     highLabel: "Disturbing",
+    description: "How dark the overall emotional atmosphere and subject matter feels. Low = comforting, gentle, low-disturbance tone. High = bleak, grim, or psychologically unsettling. Rate it by aftertaste: did you feel soothed or haunted?",
   },
   {
     key: "intellectual_challenge",
     label: "Intellectual Challenge",
     lowLabel: "Effortless",
     highLabel: "Demanding",
+    description: "The cognitive work the book asks of you to track meaning. Low = easy to follow while tired or distracted. High = requires sustained attention, with dense allusions, experimentation, or philosophical depth where rereading is rewarding.",
   },
 ];
 

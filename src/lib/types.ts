@@ -23,6 +23,7 @@ export interface SliderDimension {
   label: string;
   lowLabel: string;
   highLabel: string;
+  description: string;
 }
 
 export type TraitKey =
