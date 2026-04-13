@@ -25,7 +25,7 @@ function appendAudit(text: string) {
 }
 
 // Set to true to force re-seeding all books (e.g., after trait system change)
-const FORCE_RESEED = true;
+const FORCE_RESEED = false;
 
 async function bookIsComplete(title: string, author: string): Promise<boolean> {
   if (FORCE_RESEED) return false;
