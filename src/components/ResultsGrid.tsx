@@ -28,7 +28,7 @@ export default function ResultsGrid({
 }: ResultsGridProps) {
   if (loading) {
     return (
-      <section className="mx-auto w-full max-w-6xl px-6 py-12">
+      <section className="mx-auto w-full max-w-6xl px-6 pt-6 pb-12">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="animate-pulse rounded-2xl bg-[var(--color-surface)]/60">
@@ -58,9 +58,9 @@ export default function ResultsGrid({
   const hasMore = books.length > visibleCount;
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-6 py-12">
-      <div className="mb-8 flex items-center justify-center gap-3">
-        <h2 className="text-center font-serif text-2xl font-semibold text-green-900">
+    <section className="mx-auto w-full max-w-6xl px-6 pt-6 pb-12">
+      <div className="mb-5 flex items-center gap-3">
+        <h2 className="font-serif text-xl font-semibold text-green-900">
           Your recommendations
         </h2>
       </div>

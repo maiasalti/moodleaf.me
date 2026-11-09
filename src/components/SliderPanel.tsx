@@ -13,6 +13,7 @@ interface SliderPanelProps {
   onToggleLock: (key: TraitKey) => void;
   onToggleOptionalTrait: (key: TraitKey) => void;
   onReset: () => void;
+  onMatchBook?: () => void;
 }
 
 function TraitInfoModal({ dimension, onClose }: { dimension: SliderDimension; onClose: () => void }) {
@@ -56,6 +57,7 @@ export default function SliderPanel({
   onToggleLock,
   onToggleOptionalTrait,
   onReset,
+  onMatchBook,
 }: SliderPanelProps) {
   const [infoDimension, setInfoDimension] = useState<SliderDimension | null>(null);
 
@@ -70,26 +72,9 @@ export default function SliderPanel({
   const allActiveDims = [...mainDims, ...enabledOptionalDims];
 
   return (
-    <section className="mx-auto w-full max-w-2xl px-6">
-      <div className="mb-2 flex items-center justify-between">
-        <h2 className="font-serif text-2xl font-semibold text-green-900">
-          Set your mood
-        </h2>
-        {hasChanged && (
-          <button
-            onClick={onReset}
-            className="text-sm text-stone-400 transition-colors hover:text-stone-600"
-          >
-            Reset all
-          </button>
-        )}
-      </div>
-      <p className="mb-5 text-sm text-stone-400">
-        Adjust the sliders to describe what you&apos;re in the mood for. Tap a trait name to learn what it measures.
-      </p>
-
-      {/* All active sliders (main + enabled optional) in one grid */}
-      <div className="grid gap-3 sm:grid-cols-2">
+    <section className="mx-auto w-full max-w-6xl px-6">
+      {/* All active sliders (main + enabled optional) in one row-wrapping grid */}
+      <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
         {allActiveDims.map((dim) => {
           const isOptional = OPTIONAL_TRAIT_KEYS.includes(dim.key);
           return (
@@ -116,9 +101,8 @@ export default function SliderPanel({
         })}
       </div>
 
-      {/* Add optional trait buttons */}
-      {disabledOptionalDims.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2">
+      {/* Optional traits, match-a-book, reset */}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
           {disabledOptionalDims.map((dim) => (
             <button
               key={dim.key}
@@ -128,13 +112,26 @@ export default function SliderPanel({
               + {dim.label}
             </button>
           ))}
-        </div>
-      )}
-
-      <p className="mt-3 text-center text-xs text-stone-400">
-        Click <strong>!</strong> to lock a dimension as &ldquo;must
-        match&rdquo;
-      </p>
+          {onMatchBook && (
+            <button
+              onClick={onMatchBook}
+              className="rounded-full border border-stone-200 bg-[var(--color-surface)]/70 px-3 py-1.5 text-xs font-medium text-stone-600 backdrop-blur-sm transition-all hover:border-green-700 hover:bg-green-50 hover:text-green-800"
+            >
+              Match a book
+            </button>
+          )}
+          {hasChanged && (
+            <button
+              onClick={onReset}
+              className="px-2 py-1.5 text-xs text-stone-400 transition-colors hover:text-stone-600"
+            >
+              Reset all
+            </button>
+          )}
+          <span className="ml-auto hidden text-xs text-stone-400 md:inline">
+            Tap a trait name to learn what it measures · <strong>!</strong> locks it as &ldquo;must match&rdquo;
+          </span>
+      </div>
 
       {infoDimension && (
         <TraitInfoModal

@@ -22,7 +22,7 @@ export default function Slider({
   const percentage = ((value - 1) / 9) * 100;
 
   return (
-    <div className="group flex flex-col gap-2 rounded-xl bg-[var(--color-surface)]/60 px-5 py-4 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
+    <div className="group flex flex-col gap-1.5 rounded-xl bg-[var(--color-surface)]/60 px-4 py-3 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
       <div className="flex items-center justify-between">
         <button
           onClick={onInfoClick}

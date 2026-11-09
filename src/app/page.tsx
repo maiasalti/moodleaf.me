@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Book, SliderValues, TraitKey, BookWithScore, ReadingListWithBooks, CommunityAggregate } from "@/lib/types";
 import { DEFAULT_SLIDER_VALUES, GENRES, categorizeBook, PAGE_COUNT_RANGES, extractTraitValues, MAIN_TRAIT_KEYS } from "@/lib/constants";
-import { ONBOARDING_TITLES } from "@/lib/onboarding-books";
 import { rankBooks } from "@/lib/recommendation";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
@@ -21,10 +20,12 @@ import BookDetailModal from "@/components/BookDetailModal";
 import RatingModal from "@/components/RatingModal";
 import SearchBar from "@/components/SearchBar";
 import BookSearchSelect from "@/components/BookSearchSelect";
-import OnboardingModal from "@/components/OnboardingModal";
 import Footer from "@/components/Footer";
 
-const RESULTS_PER_PAGE = 10;
+const RESULTS_PER_PAGE = 12;
+
+const BOOK_LIST_COLUMNS =
+  "id, title, author, cover_image_url, page_count, average_rating, isbn, categories, pacing, prose_density, characterization, emotional_impact, plot_complexity, humor, darkness, intellectual_challenge";
 
 export default function Home() {
   const { user } = useAuth();
@@ -51,10 +52,6 @@ export default function Home() {
   // Book search select ("I just finished X")
   const [showBookSearch, setShowBookSearch] = useState(false);
 
-  // Onboarding
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [onboardingBooks, setOnboardingBooks] = useState<Book[]>([]);
-
   // Reading lists
   const [readingLists, setReadingLists] = useState<ReadingListWithBooks[]>([]);
 
@@ -71,13 +68,34 @@ export default function Home() {
         setLoading(false);
         return;
       }
-      const { data, error } = await supabase.from("books").select("*");
-      if (error) {
-        console.error("Error fetching books:", error);
+      // Supabase caps each response at 1000 rows, so page through the table in parallel.
+      // Descriptions are left out (they're most of the payload) and fetched when a book is opened.
+      const client = supabase;
+      const { count, error: countError } = await client
+        .from("books")
+        .select("id", { count: "exact", head: true });
+      if (countError || count == null) {
+        console.error("Error counting books:", countError);
         setLoading(false);
         return;
       }
-      const books = data as Book[];
+      const PAGE_SIZE = 1000;
+      const pages = await Promise.all(
+        Array.from({ length: Math.ceil(count / PAGE_SIZE) }, (_, i) =>
+          client
+            .from("books")
+            .select(BOOK_LIST_COLUMNS)
+            .order("id")
+            .range(i * PAGE_SIZE, (i + 1) * PAGE_SIZE - 1)
+        )
+      );
+      const failed = pages.find((p) => p.error);
+      if (failed) {
+        console.error("Error fetching books:", failed.error);
+        setLoading(false);
+        return;
+      }
+      const books = pages.flatMap((p) => p.data ?? []).map((b) => ({ ...b, description: null })) as Book[];
 
       // Fetch community aggregates and blend
       const aggregates = await getBookCommunityAggregates(books.map((b) => b.id));
@@ -89,16 +107,6 @@ export default function Home() {
 
       setAllBooks(blendedBooks);
       setLoading(false);
-
-      // Onboarding: check if first visit
-      if (!localStorage.getItem("moodleaf-onboarded")) {
-        const titleSet = new Set(ONBOARDING_TITLES.map((t) => t.toLowerCase()));
-        const matched = books.filter((b) => titleSet.has(b.title.toLowerCase()));
-        if (matched.length >= 3) {
-          setOnboardingBooks(matched);
-          setShowOnboarding(true);
-        }
-      }
     }
     fetchBooks();
   }, []);
@@ -226,18 +234,6 @@ export default function Home() {
     setShowBookSearch(false);
   };
 
-  // Onboarding
-  const handleOnboardingComplete = (values: SliderValues) => {
-    setSliderValuesAnimated(values);
-    localStorage.setItem("moodleaf-onboarded", "true");
-    setShowOnboarding(false);
-  };
-
-  const handleOnboardingSkip = () => {
-    localStorage.setItem("moodleaf-onboarded", "true");
-    setShowOnboarding(false);
-  };
-
   // Read toggle
   const handleToggleRead = async (bookId: string) => {
     if (!user) {
@@ -304,18 +300,22 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
       <Hero />
-      <div className="mx-auto w-full max-w-2xl space-y-4 px-6 pb-4">
-        <SearchBar onSearch={setSearchQuery} />
-        <div className="flex flex-wrap items-center gap-3">
-          <GenreFilter
-            genres={[...GENRES]}
-            selected={selectedGenres}
-            onChange={setSelectedGenres}
-          />
-          <PageCountFilter
-            selected={selectedPageRanges}
-            onChange={setSelectedPageRanges}
-          />
+      <div className="mx-auto w-full max-w-6xl space-y-3 px-6 pb-3">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center">
+          <div className="md:flex-1">
+            <SearchBar onSearch={setSearchQuery} />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <GenreFilter
+              genres={[...GENRES]}
+              selected={selectedGenres}
+              onChange={setSelectedGenres}
+            />
+            <PageCountFilter
+              selected={selectedPageRanges}
+              onChange={setSelectedPageRanges}
+            />
+          </div>
         </div>
       </div>
       <SliderPanel
@@ -326,16 +326,10 @@ export default function Home() {
         onToggleLock={handleToggleLock}
         onToggleOptionalTrait={handleToggleOptionalTrait}
         onReset={handleReset}
+        onMatchBook={() => setShowBookSearch(true)}
       />
-      <div className="mx-auto w-full max-w-2xl px-6 py-4 flex justify-center">
-        {!showBookSearch ? (
-          <button
-            onClick={() => setShowBookSearch(true)}
-            className="rounded-full border border-stone-200 bg-[var(--color-surface)]/70 px-4 py-2 text-sm font-medium text-stone-600 backdrop-blur-sm transition-all hover:border-green-700 hover:bg-green-50 hover:text-green-800"
-          >
-            Match a book
-          </button>
-        ) : (
+      {showBookSearch && (
+        <div className="mx-auto flex w-full max-w-6xl justify-center px-6 pt-3">
           <div className="w-full max-w-md">
             <BookSearchSelect
               books={allBooks}
@@ -343,8 +337,8 @@ export default function Home() {
               onClose={() => setShowBookSearch(false)}
             />
           </div>
-        )}
-      </div>
+        </div>
+      )}
       <ResultsGrid
         books={results}
         loading={loading}
@@ -357,6 +351,18 @@ export default function Home() {
         onBookClick={async (book) => {
           setSelectedBook(book);
           setSelectedBookRating(null);
+          if (book.description == null && supabase) {
+            supabase
+              .from("books")
+              .select("description")
+              .eq("id", book.id)
+              .maybeSingle()
+              .then(({ data }) => {
+                const description = data?.description ?? "";
+                setSelectedBook((cur) => (cur?.id === book.id ? { ...cur, description } : cur));
+                setAllBooks((prev) => prev.map((b) => (b.id === book.id ? { ...b, description } : b)));
+              });
+          }
           if (user && readBookIds.has(book.id)) {
             const rating = await getUserRating(user.id, book.id);
             setSelectedBookRating(rating);
@@ -389,13 +395,6 @@ export default function Home() {
           userRating={null}
           onSubmit={handleSubmitRating}
           onClose={() => setRatingModalBook(null)}
-        />
-      )}
-      {showOnboarding && onboardingBooks.length >= 3 && (
-        <OnboardingModal
-          books={onboardingBooks}
-          onComplete={handleOnboardingComplete}
-          onSkip={handleOnboardingSkip}
         />
       )}
     </div>

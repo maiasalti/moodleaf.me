@@ -16,12 +16,12 @@ export default function PageCountFilter({ selected, onChange }: PageCountFilterP
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       {PAGE_COUNT_RANGES.map((range) => (
         <button
           key={range.key}
           onClick={() => toggle(range.key)}
-          className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+          className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
             selected.has(range.key)
               ? "bg-green-800 text-white"
               : "bg-[var(--color-surface)]/70 text-stone-500 hover:bg-green-50 hover:text-green-800"

@@ -10,28 +10,26 @@ export default function Hero() {
 
   return (
     <>
-      <header className="flex items-center justify-between px-6 pt-6 md:px-10">
-        <img src="/logo.png" alt="Moodleaf" className="h-12 w-12" />
-        <div className="flex items-center gap-3">
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 pt-5 pb-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <img src="/logo.png" alt="" className="h-10 w-10 shrink-0" />
+          <div className="min-w-0">
+            <h1 className="font-serif text-3xl font-bold leading-none tracking-tight text-green-900 md:text-4xl">
+              Moodleaf
+            </h1>
+            <p className="mt-1 truncate text-xs text-stone-500 md:text-sm">
+              Find your next favorite book — set your mood below
+            </p>
+          </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="hidden rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-600 lg:inline">
+            Beta — feedback welcome (bottom left)
+          </span>
           <ThemeToggle />
           <UserMenu onSignInClick={() => setShowAuth(true)} />
         </div>
       </header>
-      <section className="flex flex-col items-center px-6 pt-10 pb-12 text-center md:pt-16 md:pb-16">
-        <p className="mb-4 rounded-full bg-red-50 px-4 py-1.5 text-xs font-medium text-red-600">
-          Still in beta — we&apos;d love your feedback via the button in the bottom left
-        </p>
-        <h1 className="font-serif text-5xl font-bold tracking-tight text-green-900 md:text-7xl">
-          Moodleaf
-        </h1>
-        <p className="mt-4 max-w-lg text-lg text-stone-600 md:text-xl">
-          Find your next favorite book
-        </p>
-        <p className="mt-3 max-w-md text-sm leading-relaxed text-stone-500 md:text-base">
-          Adjust the sliders to match your reading mood, and we&apos;ll find the
-          perfect books for you.
-        </p>
-      </section>
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
     </>
   );
