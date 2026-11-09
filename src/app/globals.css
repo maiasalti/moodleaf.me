@@ -174,3 +174,8 @@ body {
 @media (max-width: 1279px) { .vine { width: 64px; opacity: 0.5; } }
 @media (max-width: 639px) { .vine { display: none; } }
 @media (prefers-reduced-motion: reduce) { .vine-leaf, .vine-bloom { transition: none; } }
+
+/* Theme-specific logo (components/Hero.tsx) */
+.logo-dark { display: none; }
+[data-theme="dark"] .logo-light { display: none; }
+[data-theme="dark"] .logo-dark { display: block; }

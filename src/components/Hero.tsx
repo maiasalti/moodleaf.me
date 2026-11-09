@@ -12,7 +12,8 @@ export default function Hero() {
     <>
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 pt-5 pb-4">
         <div className="flex min-w-0 items-center gap-3">
-          <img src="/logo.png" alt="" className="h-10 w-10 shrink-0" />
+          <img src="/logo-light.png" alt="" width={40} height={40} className="logo-light h-10 w-10 shrink-0" />
+          <img src="/logo-dark.png" alt="" width={40} height={40} className="logo-dark h-10 w-10 shrink-0" />
           <div className="min-w-0">
             <h1 className="font-serif text-4xl font-semibold leading-none text-green-900 md:text-5xl">
               Moodleaf
