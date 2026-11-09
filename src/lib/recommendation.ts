@@ -49,7 +49,7 @@ export function rankBooks(
   activeTraits?: TraitKey[]
 ): BookWithScore[] {
   const traits = activeTraits ?? MAIN_TRAIT_KEYS;
-  const maxDistance = Math.sqrt(traits.length * 9 * 9);
+  const maxDistance = Math.sqrt(traits.length * 9 * 9) || 1;
 
   const eligible = books.filter((book) => {
     if (!passesLockFilter(book, userValues, lockedDimensions)) return false;

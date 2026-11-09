@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="mt-auto border-t border-stone-200 bg-white/40 px-6 py-8 backdrop-blur-sm">
+    <footer className="mt-auto border-t border-stone-200 bg-[var(--color-surface)]/40 px-6 py-8 backdrop-blur-sm">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 text-center">
         <span className="font-serif text-xl font-bold text-green-900">
           Moodleaf

@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme inline {
+@theme {
   --color-cream: #F5F0E8;
   --color-cream-dark: #EDE7DB;
   --color-green-900: #1B3A2D;
@@ -21,6 +21,18 @@
   --color-amber-800: #92400E;
   --color-surface: #FFFFFF;
   --color-surface-elevated: #FFFFFF;
+  --color-stone-50: #FAF8F4;
+  --color-stone-900: #1C1A17;
+  --color-red-50: #FEF2F2;
+  --color-red-600: #DC2626;
+  --color-on-accent: #FFFFFF;
+  --color-vine: #3D7A5C;
+  --color-leaf: #5E9A72;
+  --color-leaf-dark: #2D5A45;
+  --color-bloom: #E8A87C;
+}
+
+@theme inline {
   --font-serif: var(--font-display), Georgia, serif;
   --font-sans: var(--font-body), system-ui, sans-serif;
 }
@@ -110,26 +122,55 @@ body {
   animation: card-in 0.4s ease both;
 }
 
-/* Dark mode overrides */
+/* Night Garden (default theme) */
 [data-theme="dark"] {
-  --color-cream: #1a1a1a;
-  --color-cream-dark: #141414;
-  --color-green-900: #c8e6d0;
-  --color-green-800: #8ccfa3;
-  --color-green-700: #6bbe8a;
-  --color-green-100: #1e2e25;
-  --color-green-50: #1a2820;
-  --color-terracotta: #e8a87c;
-  --color-terracotta-light: #c17743;
-  --color-stone-100: #2a2a2a;
-  --color-stone-200: #333333;
-  --color-stone-300: #444444;
-  --color-stone-400: #888888;
-  --color-stone-500: #aaaaaa;
-  --color-stone-600: #cccccc;
-  --color-stone-700: #e5e5e5;
-  --color-amber-100: #3d2e0f;
-  --color-amber-800: #fbbf24;
-  --color-surface: #242424;
-  --color-surface-elevated: #2e2e2e;
+  color-scheme: dark;
+  --color-cream: #0E1B16;
+  --color-cream-dark: #0A1511;
+  --color-green-900: #E9E5D6;
+  --color-green-800: #9FD8B0;
+  --color-green-700: #77C08F;
+  --color-green-100: #1A3328;
+  --color-green-50: #15271F;
+  --color-terracotta: #EBD36B;
+  --color-terracotta-light: #C9B24F;
+  --color-stone-50: #12221B;
+  --color-stone-100: #172A22;
+  --color-stone-200: #22392E;
+  --color-stone-300: #2E4A3C;
+  --color-stone-400: #7F9486;
+  --color-stone-500: #9AAD9F;
+  --color-stone-600: #BAC7BC;
+  --color-stone-700: #D6DDD2;
+  --color-stone-900: #E9E5D6;
+  --color-amber-100: #3A3216;
+  --color-amber-800: #EBD36B;
+  --color-red-50: #3A1D1F;
+  --color-red-600: #F29B8F;
+  --color-surface: #15271F;
+  --color-surface-elevated: #1B3027;
+  --color-on-accent: #0E1B16;
+  --color-vine: #4E8E66;
+  --color-leaf: #77C08F;
+  --color-leaf-dark: #3B7A55;
+  --color-bloom: #EBD36B;
 }
+
+/* Decorative vines (components/Vines.tsx) */
+.vine { position: absolute; top: 0; width: 120px; pointer-events: none; z-index: -1; }
+.vine-left { left: 0; }
+.vine-right { right: 0; transform: scaleX(-1); }
+.vine-stem { fill: none; stroke: var(--color-vine); stroke-width: 3.2; stroke-linecap: round; }
+.vine-tendril { fill: none; stroke: var(--color-vine); stroke-width: 1.4; stroke-linecap: round; opacity: 0.8; }
+.vine-leaf { transform-box: fill-box; transform-origin: 0% 50%; transform: scale(0); transition: transform 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.3); }
+.vine-leaf.on { transform: scale(1); }
+.vine-leaf path { fill: var(--color-leaf); }
+.vine-leaf-dark path { fill: var(--color-leaf-dark); }
+.vine-leaf .vine-vein { fill: none; stroke: var(--color-cream); stroke-width: 0.8; opacity: 0.45; }
+.vine-bloom { transform-box: fill-box; transform-origin: center; transform: scale(0) rotate(-40deg); transition: transform 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+.vine-bloom.on { transform: scale(1) rotate(0); }
+.vine-bloom circle { fill: var(--color-bloom); }
+.vine-bloom .vine-bloom-core { fill: var(--color-cream); }
+@media (max-width: 1279px) { .vine { width: 64px; opacity: 0.5; } }
+@media (max-width: 639px) { .vine { display: none; } }
+@media (prefers-reduced-motion: reduce) { .vine-leaf, .vine-bloom { transition: none; } }

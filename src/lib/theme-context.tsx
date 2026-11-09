@@ -10,23 +10,20 @@ interface ThemeState {
 }
 
 const ThemeContext = createContext<ThemeState>({
-  theme: "light",
+  theme: "dark",
   toggleTheme: () => {},
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark");
 
+  // The inline script in layout.tsx already applied the stored theme before paint; sync state to it.
   useEffect(() => {
-    const stored = localStorage.getItem("moodleaf-theme") as Theme | null;
-    if (stored === "dark" || stored === "light") {
-      setTheme(stored);
-      document.documentElement.dataset.theme = stored;
-    }
+    if (document.documentElement.dataset.theme === "light") setTheme("light");
   }, []);
 
   const toggleTheme = () => {
-    const next = theme === "light" ? "dark" : "light";
+    const next: Theme = theme === "light" ? "dark" : "light";
     setTheme(next);
     localStorage.setItem("moodleaf-theme", next);
     document.documentElement.dataset.theme = next;

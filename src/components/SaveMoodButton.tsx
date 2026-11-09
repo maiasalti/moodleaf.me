@@ -45,7 +45,7 @@ export default function SaveMoodButton({ values, onSave }: SaveMoodButtonProps) 
       <button
         onClick={handleSave}
         disabled={!name.trim()}
-        className="rounded-lg bg-green-800 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-900 disabled:opacity-40"
+        className="rounded-lg bg-green-800 px-3 py-1.5 text-sm font-medium text-on-accent transition-colors hover:bg-green-900 disabled:opacity-40"
       >
         Save
       </button>

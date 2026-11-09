@@ -1,22 +1,26 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Abel, DM_Sans } from "next/font/google";
+import { Cormorant_Garamond, Karla } from "next/font/google";
 import { AuthProvider } from "@/lib/auth-context";
 import { ThemeProvider } from "@/lib/theme-context";
 import { CookieBanner } from "@/components/cookie-banner";
 import FeedbackButton from "@/components/FeedbackButton";
+import Vines from "@/components/Vines";
 import "./globals.css";
 
-const abel = Abel({
-  weight: "400",
+const cormorant = Cormorant_Garamond({
+  weight: ["500", "600", "700"],
   subsets: ["latin"],
   variable: "--font-display",
 });
 
-const dmSans = DM_Sans({
+const karla = Karla({
   subsets: ["latin"],
   variable: "--font-body",
 });
+
+// Runs before first paint so a stored light-mode preference doesn't flash the default dark theme (or vice versa).
+const themeScript = `try{var t=localStorage.getItem("moodleaf-theme");document.documentElement.dataset.theme=t==="light"?"light":"dark"}catch(e){}`;
 
 export const metadata: Metadata = {
   title: "Moodleaf — Find your next favorite book",
@@ -50,8 +54,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${abel.variable} ${dmSans.variable}`}>
-      <body className="min-h-screen font-sans antialiased">
+    <html lang="en" data-theme="dark" suppressHydrationWarning className={`${cormorant.variable} ${karla.variable}`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className="relative min-h-screen font-sans antialiased">
+        <Vines />
         <ThemeProvider>
           <AuthProvider>
             {children}

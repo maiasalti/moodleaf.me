@@ -14,7 +14,7 @@ export default function Hero() {
         <div className="flex min-w-0 items-center gap-3">
           <img src="/logo.png" alt="" className="h-10 w-10 shrink-0" />
           <div className="min-w-0">
-            <h1 className="font-serif text-3xl font-bold leading-none tracking-tight text-green-900 md:text-4xl">
+            <h1 className="font-serif text-4xl font-semibold leading-none text-green-900 md:text-5xl">
               Moodleaf
             </h1>
             <p className="mt-1 truncate text-xs text-stone-500 md:text-sm">

@@ -23,7 +23,7 @@ export default function PageCountFilter({ selected, onChange }: PageCountFilterP
           onClick={() => toggle(range.key)}
           className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
             selected.has(range.key)
-              ? "bg-green-800 text-white"
+              ? "bg-green-800 text-on-accent"
               : "bg-[var(--color-surface)]/70 text-stone-500 hover:bg-green-50 hover:text-green-800"
           }`}
         >

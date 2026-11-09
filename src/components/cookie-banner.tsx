@@ -19,7 +19,7 @@ export function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-stone-200 bg-white/95 backdrop-blur-sm px-4 py-3 dark:border-stone-700 dark:bg-stone-900/95">
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-stone-200 bg-[var(--color-surface)]/95 backdrop-blur-sm px-4 py-3">
       <div className="mx-auto flex max-w-4xl items-center justify-between gap-4">
         <p className="text-xs text-stone-500 dark:text-stone-400">
           This site uses Google Analytics to collect anonymous usage data to help
@@ -36,7 +36,7 @@ export function CookieBanner() {
         </p>
         <button
           onClick={dismiss}
-          className="shrink-0 rounded-md bg-green-800 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-colors"
+          className="shrink-0 rounded-md bg-green-800 px-3 py-1.5 text-xs font-medium text-on-accent hover:bg-green-700 transition-colors"
         >
           Got it
         </button>

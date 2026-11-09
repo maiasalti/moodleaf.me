@@ -36,7 +36,7 @@ export default function FeedbackButton() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-4 left-4 z-40 flex items-center gap-2 rounded-full bg-green-800 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all hover:bg-green-900 hover:shadow-xl"
+        className="fixed bottom-4 left-4 z-40 flex items-center gap-2 rounded-full bg-green-800 px-4 py-2.5 text-sm font-medium text-on-accent shadow-lg transition-all hover:bg-green-900 hover:shadow-xl"
         title="Send feedback"
       >
         <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -83,12 +83,12 @@ export default function FeedbackButton() {
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Type your feedback here..."
                   rows={5}
-                  className="mt-4 w-full rounded-lg border border-stone-200 bg-white p-3 text-sm text-stone-700 placeholder-stone-400 outline-none focus:border-green-700 focus:ring-1 focus:ring-green-700"
+                  className="mt-4 w-full rounded-lg border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700 placeholder-stone-400 outline-none focus:border-green-700 focus:ring-1 focus:ring-green-700"
                 />
                 <button
                   onClick={handleSubmit}
                   disabled={!message.trim() || submitting}
-                  className="mt-3 w-full rounded-lg bg-green-800 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-green-900 disabled:bg-stone-300 disabled:text-stone-500"
+                  className="mt-3 w-full rounded-lg bg-green-800 px-4 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-green-900 disabled:bg-stone-300 disabled:text-stone-500"
                 >
                   {submitting ? "Sending..." : "Send feedback"}
                 </button>

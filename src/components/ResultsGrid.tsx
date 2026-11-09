@@ -60,7 +60,7 @@ export default function ResultsGrid({
   return (
     <section className="mx-auto w-full max-w-6xl px-6 pt-6 pb-12">
       <div className="mb-5 flex items-center gap-3">
-        <h2 className="font-serif text-xl font-semibold text-green-900">
+        <h2 className="font-serif text-3xl font-semibold text-green-900">
           Your recommendations
         </h2>
       </div>

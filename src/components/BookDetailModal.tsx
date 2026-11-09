@@ -166,7 +166,7 @@ export default function BookDetailModal({
                   onClick={() => onToggleSave(book.id)}
                   className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                     saved
-                      ? "bg-green-800 text-white hover:bg-green-900"
+                      ? "bg-green-800 text-on-accent hover:bg-green-900"
                       : "bg-stone-200 text-stone-600 hover:bg-stone-300"
                   }`}
                 >
@@ -178,7 +178,7 @@ export default function BookDetailModal({
                   onClick={() => onToggleRead(book.id)}
                   className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                     isRead
-                      ? "bg-green-700 text-white hover:bg-green-800"
+                      ? "bg-green-700 text-on-accent hover:bg-green-800"
                       : "bg-stone-200 text-stone-600 hover:bg-stone-300"
                   }`}
                 >

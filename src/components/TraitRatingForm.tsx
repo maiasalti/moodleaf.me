@@ -151,7 +151,7 @@ export default function TraitRatingForm({
 
       <button
         onClick={() => onSubmit(values)}
-        className="w-full rounded-lg bg-green-800 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-900"
+        className="w-full rounded-lg bg-green-800 px-4 py-2 text-sm font-medium text-on-accent transition-colors hover:bg-green-900"
       >
         {isUpdate ? "Update rating" : "Submit rating"}
       </button>

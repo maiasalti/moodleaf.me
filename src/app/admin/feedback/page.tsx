@@ -39,7 +39,7 @@ export default function AdminFeedbackPage() {
         <p className="mt-3 text-stone-500">This page is admin-only.</p>
         <Link
           href="/"
-          className="mt-6 rounded-lg bg-green-800 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-green-900"
+          className="mt-6 rounded-lg bg-green-800 px-6 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-green-900"
         >
           Back to home
         </Link>

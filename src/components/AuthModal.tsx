@@ -50,7 +50,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
           </p>
           <button
             onClick={onClose}
-            className="mt-6 w-full rounded-lg bg-green-800 py-2.5 text-sm font-medium text-white transition-colors hover:bg-green-900"
+            className="mt-6 w-full rounded-lg bg-green-800 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-green-900"
           >
             Got it
           </button>
@@ -106,7 +106,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
           <button
             type="submit"
             disabled={loading}
-            className="mt-1 rounded-lg bg-green-800 py-2.5 text-sm font-medium text-white transition-colors hover:bg-green-900 disabled:opacity-50"
+            className="mt-1 rounded-lg bg-green-800 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-green-900 disabled:opacity-50"
           >
             {loading ? "..." : mode === "signin" ? "Sign in" : "Create account"}
           </button>

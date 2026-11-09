@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { SliderValues, TraitKey, SliderDimension } from "@/lib/types";
-import { SLIDER_DIMENSIONS, DEFAULT_SLIDER_VALUES, MAIN_TRAIT_KEYS, OPTIONAL_TRAIT_KEYS } from "@/lib/constants";
+import { SLIDER_DIMENSIONS, DEFAULT_SLIDER_VALUES, MAIN_TRAIT_KEYS } from "@/lib/constants";
 import Slider from "./Slider";
 
 interface SliderPanelProps {
   values: SliderValues;
   lockedDimensions: Set<TraitKey>;
-  enabledOptionalTraits: Set<TraitKey>;
+  dismissedTraits: Set<TraitKey>;
   onChange: (key: TraitKey, value: number) => void;
   onToggleLock: (key: TraitKey) => void;
-  onToggleOptionalTrait: (key: TraitKey) => void;
+  onToggleTrait: (key: TraitKey) => void;
   onReset: () => void;
   onMatchBook?: () => void;
 }
@@ -52,74 +52,45 @@ function TraitInfoModal({ dimension, onClose }: { dimension: SliderDimension; on
 export default function SliderPanel({
   values,
   lockedDimensions,
-  enabledOptionalTraits,
+  dismissedTraits,
   onChange,
   onToggleLock,
-  onToggleOptionalTrait,
+  onToggleTrait,
   onReset,
   onMatchBook,
 }: SliderPanelProps) {
   const [infoDimension, setInfoDimension] = useState<SliderDimension | null>(null);
 
+  const defaultExcluded = SLIDER_DIMENSIONS.filter((d) => !MAIN_TRAIT_KEYS.includes(d.key)).map((d) => d.key);
   const hasChanged =
     JSON.stringify(values) !== JSON.stringify(DEFAULT_SLIDER_VALUES) ||
-    enabledOptionalTraits.size > 0;
-
-  const mainDims = SLIDER_DIMENSIONS.filter((d) => MAIN_TRAIT_KEYS.includes(d.key));
-  const optionalDims = SLIDER_DIMENSIONS.filter((d) => OPTIONAL_TRAIT_KEYS.includes(d.key));
-  const enabledOptionalDims = optionalDims.filter((d) => enabledOptionalTraits.has(d.key));
-  const disabledOptionalDims = optionalDims.filter((d) => !enabledOptionalTraits.has(d.key));
-  const allActiveDims = [...mainDims, ...enabledOptionalDims];
+    lockedDimensions.size > 0 ||
+    dismissedTraits.size !== defaultExcluded.length ||
+    defaultExcluded.some((k) => !dismissedTraits.has(k));
 
   return (
     <section className="mx-auto w-full max-w-6xl px-6">
-      {/* All active sliders (main + enabled optional) in one row-wrapping grid */}
-      <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
-        {allActiveDims.map((dim) => {
-          const isOptional = OPTIONAL_TRAIT_KEYS.includes(dim.key);
-          return (
-            <div key={dim.key} className="relative">
-              <Slider
-                dimension={dim}
-                value={values[dim.key]}
-                locked={lockedDimensions.has(dim.key)}
-                onChange={(val) => onChange(dim.key, val)}
-                onToggleLock={() => onToggleLock(dim.key)}
-                onInfoClick={() => setInfoDimension(dim)}
-              />
-              {isOptional && (
-                <button
-                  onClick={() => onToggleOptionalTrait(dim.key)}
-                  className="absolute top-2 right-2 text-[10px] text-stone-400 hover:text-red-500 transition-colors"
-                  title="Remove filter"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          );
-        })}
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3">
+        {SLIDER_DIMENSIONS.map((dim) => (
+          <Slider
+            key={dim.key}
+            dimension={dim}
+            value={values[dim.key]}
+            included={!dismissedTraits.has(dim.key)}
+            locked={lockedDimensions.has(dim.key)}
+            onChange={(val) => onChange(dim.key, val)}
+            onToggleLock={() => onToggleLock(dim.key)}
+            onInfoClick={() => setInfoDimension(dim)}
+            onToggleIncluded={() => onToggleTrait(dim.key)}
+          />
+        ))}
       </div>
 
-      {/* Optional traits, match-a-book, reset */}
       <div className="mt-3 flex flex-wrap items-center gap-2">
-          {disabledOptionalDims.map((dim) => (
-            <button
-              key={dim.key}
-              onClick={() => onToggleOptionalTrait(dim.key)}
-              className="rounded-full border border-dashed border-stone-300 bg-[var(--color-surface)]/70 px-3 py-1.5 text-xs font-medium text-stone-500 backdrop-blur-sm transition-all hover:border-green-700 hover:text-green-800"
-            >
-              + {dim.label}
-            </button>
-          ))}
-          {onMatchBook && (
-            <button
-              onClick={onMatchBook}
-              className="rounded-full border border-stone-200 bg-[var(--color-surface)]/70 px-3 py-1.5 text-xs font-medium text-stone-600 backdrop-blur-sm transition-all hover:border-green-700 hover:bg-green-50 hover:text-green-800"
-            >
-              Match a book
-            </button>
-          )}
+        <span className="text-xs text-stone-400">
+          Dashed traits are ignored. Use the eye to include one, or just move its slider. The padlock makes a trait a must-match.
+        </span>
+        <div className="ml-auto flex items-center gap-2">
           {hasChanged && (
             <button
               onClick={onReset}
@@ -128,9 +99,19 @@ export default function SliderPanel({
               Reset all
             </button>
           )}
-          <span className="ml-auto hidden text-xs text-stone-400 md:inline">
-            Tap a trait name to learn what it measures · <strong>!</strong> locks it as &ldquo;must match&rdquo;
-          </span>
+          {onMatchBook && (
+            <button
+              onClick={onMatchBook}
+              className="flex items-center gap-2 rounded-full bg-green-800 px-4 py-2 text-sm font-semibold text-on-accent shadow-sm transition-all hover:bg-green-900 hover:shadow-md"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z" />
+                <path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5" />
+              </svg>
+              Match based on a book
+            </button>
+          )}
+        </div>
       </div>
 
       {infoDimension && (

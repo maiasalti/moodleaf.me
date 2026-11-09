@@ -43,7 +43,7 @@ export default function UserMenu({ onSignInClick }: UserMenuProps) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-green-800 text-sm font-medium text-white transition-colors hover:bg-green-900"
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-green-800 text-sm font-medium text-on-accent transition-colors hover:bg-green-900"
         title={displayName}
       >
         {displayName.charAt(0).toUpperCase()}
