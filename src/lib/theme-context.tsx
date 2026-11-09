@@ -25,7 +25,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const toggleTheme = () => {
     const next: Theme = theme === "light" ? "dark" : "light";
     setTheme(next);
-    localStorage.setItem("moodleaf-theme", next);
+    localStorage.setItem("moodleaf-theme-v2", next);
     document.documentElement.dataset.theme = next;
   };
 

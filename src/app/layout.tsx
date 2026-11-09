@@ -20,7 +20,7 @@ const karla = Karla({
 });
 
 // Runs before first paint so a stored light-mode preference doesn't flash the default dark theme (or vice versa).
-const themeScript = `try{var t=localStorage.getItem("moodleaf-theme");document.documentElement.dataset.theme=t==="light"?"light":"dark"}catch(e){}`;
+const themeScript = `try{var t=localStorage.getItem("moodleaf-theme-v2");document.documentElement.dataset.theme=t==="light"?"light":"dark"}catch(e){}`;
 
 export const metadata: Metadata = {
   title: "Moodleaf — Find your next favorite book",
