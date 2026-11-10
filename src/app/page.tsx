@@ -342,18 +342,16 @@ export default function Home() {
         onToggleTrait={handleToggleTrait}
         onReset={handleReset}
         onMatchBook={() => setShowBookSearch(true)}
-      />
-      {showBookSearch && (
-        <div className="mx-auto flex w-full max-w-6xl justify-center px-6 pt-3">
-          <div className="w-full max-w-md">
+        bookSearch={
+          showBookSearch ? (
             <BookSearchSelect
               books={allBooks}
               onSelect={handleBookSearchSelect}
               onClose={() => setShowBookSearch(false)}
             />
-          </div>
-        </div>
-      )}
+          ) : undefined
+        }
+      />
       <ResultsGrid
         books={results}
         loading={loading}
